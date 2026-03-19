@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop Platform - Parul University</title>
+    <!-- Core Styling System -->
+    <link rel="stylesheet" href="./styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container">
+    
+
+    
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="./index.html" class="active">Welcome & Intro</a></li>
+                <li><a href="./modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="./modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="./modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="./modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="./modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="./modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="./modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="./modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="./modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="./modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="./modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="./modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="./modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="./modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Right Panel Content Area -->
+    <main class="main-content" id="content-anchor">
+        <section id="welcome-section">
+            <h1>Welcome to the Advanced VAPT Workshop</h1>
+            <p>Welcome to the 6-Day Vulnerability Assessment and Penetration Testing (VAPT) professional training for Parul University.</p>
+            
+            <div class="glass-card">
+                <h2>Workshop Philosophy</h2>
+                <p>This is a lab-first, visual-first learning experience designed to take you from core concepts directly into hands-on exploitation.</p>
+                <ul>
+                    <li><strong>Concept-Driven:</strong> Understand the attack vector deeply through analogies.</li>
+                    <li><strong>Visual Flow:</strong> Step-by-step visualizations of attack architecture.</li>
+                    <li><strong>Practical Hands-On:</strong> Dedicated labs for each attack type.</li>
+                </ul>
+            </div>
+            
+            <div class="callout tip">
+                <div class="icon">💡</div>
+                <div class="content"><strong>Pro Tip:</strong> Ensure you have the provided Docker infrastructure up and running before tackling the lab modules. You'll need it continuously!</div>
+            </div>
+            
+            <div class="glass-card" style="display: flex; align-items: center; gap: 2rem; margin: 2.5rem 0;">
+                <img src="https://shashankdubey.in/profile.jpg" alt="Shashank Dubey" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neon); box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); flex-shrink: 0;">
+                <div>
+                    <h2 style="margin-top: 0; margin-bottom: 0.5rem;">About the Trainer</h2>
+                    <p style="margin-top: 0;"><strong>Shashank Dubey</strong> is an AI & Cloud Security Researcher specializing in AWS, Azure, and GCP. A BlackHat MEA Arsenal presenter and DEF CON speaker, he brings 5+ years of hands-on experience in cloud penetration testing and architecture review.</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                        <a href="https://linkedin.com/in/shashankdubey" target="_blank" class="btn-start-lab" style="margin: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: linear-gradient(135deg, #0077b5, #005e93); box-shadow: 0 4px 15px rgba(0, 119, 181, 0.4);">in LinkedIn</a>
+                        <a href="https://youtube.com/@5minutescloud" target="_blank" class="btn-stop-lab" style="margin: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: linear-gradient(135deg, #ff0000, #cc0000) !important; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);">▶ YouTube - 5MinutesCloud</a>
+                        <a href="https://shashankdubey.in" target="_blank" class="btn-start-lab" style="margin: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">🌐 Portfolio</a>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Navigation</h2>
+            <p>Use the sidebar on the left to navigate through modules. The workshop is strictly modular, meaning each attack vector stands on its own with dedicated architecture diagrams, tools, and executable labs.</p>
+            
+            <h2>Ready?</h2>
+            <p>Click on <strong>Privilege Escalation</strong> in the sidebar to start the first module!</p>
+        </section>
+    
+    <div class="content-nav">
+        <div></div>
+        <div><a href="modules/privilege-escalation/overview.html" class="content-nav-next"><span>→</span> Privilege Escalation</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

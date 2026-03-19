@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Reporting</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html" class="active">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Reporting & Post Testing
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>Reporting</strong> is the most critical phase of a Penetration Test. If you hack the entire network but write a poor report, the assessment is a failure. The goal is to translate highly technical findings into actionable risk intelligence for both executives and developers.</p>
+  <p><em>Real-world analogy:</em> A doctor performing a highly complex MRI (the pentest) is useless unless they provide a clear, readable diagnosis and a prescription (the report) to cure the patient.</p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Report Anatomy 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">📄 Executive Summary (For the C-Suite)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">📊 Assessment Methodology (How we did it)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🚨 Finding Details (Technical risk, Proof of Concept)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🛠️ Remediation Strategy (How to fix it)</div>
+  </div>
+  
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Section</th>
+        <th>Target Audience</th>
+        <th>Key Objective</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Executive Summary</td>
+        <td>CEO, CIO, Board</td>
+        <td>Plain English bottom line. "Are we safe? What is the business impact?"</td>
+      </tr>
+      <tr>
+        <td>Vulnerability Matrix</td>
+        <td>IT Management</td>
+        <td>Prioritized list of CVEs by Criticality (CVSS Scoring).</td>
+      </tr>
+      <tr>
+        <td>Technical Detail</td>
+        <td>Developers, SysAdmins</td>
+        <td>Exact reproduction steps, HTTP requests/responses, and code patches.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Writing a Critical Finding</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Documentation</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
+      <span class="meta-badge">Time: 20 mins</span>
+    </div>
+<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout tip">
+      <div class="icon">💡</div>
+      <div class="content"><strong>Pro Tip:</strong> Always use CVSS (Common Vulnerability Scoring System) to objectively justify why an issue is marked "Critical" rather than "High". Never skip the "Proof of Concept" (PoC) block; screenshots are mandatory for clients to believe you.</div>
+    </div>
+    
+    <h4>Architecture Diagram</h4>
+    <img src="../../assets/architecture_placeholder.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Report Section Template</h4>
+    <p>Craft a mock finding for the SQL Injection lab from earlier using this professional structure:</p>
+    
+    <pre><code>**Finding 01: Unauthenticated SQL Injection in Login Portal**
+**Severity:** Critical (CVSS v3.1: 9.8 - Network/Low Complexity/No Privileges)
+**Affected URL:** `http://internal-app.local/login.php`
+
+**Description:**
+The login portal fails to sanitize user input in the `user` parameters before passing it to the database query. This allows an attacker to manipulate the backend query structure. 
+
+**Proof of Concept (PoC):**
+1. Navigate to the login page.
+2. Enter the payload `admin' OR 1=1 --` in the username field.
+3. Observe successful authentication bypassing the password check completely.
+
+<img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+<img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+
+**Business Impact:**
+An attacker can completely bypass authentication, allowing uninhibited access to sensitive employee data and financial records without needing valid credentials.
+
+**Remediation:**
+Implement Prepared Statements (Parameterized Queries) within the `login.php` codebase to separate SQL execution logic from user-supplied data strings.</code></pre>
+    
+    <h4>Expected Output</h4>
+    <p>A professional, highly clear finding that developers can immediately use to reproduce the error and fix it.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/physical-security/overview.html" class="content-nav-prev"><span>←</span> Physical Security</a></div>
+        <div></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

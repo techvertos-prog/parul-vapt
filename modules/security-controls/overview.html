@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Security Controls</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html" class="active">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Security Controls & Architecture
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>Security Controls</strong> are the safeguards or countermeasures implemented to avoid, detect, counteract, or minimize security risks to physical property, information, computer systems, or other assets.</p>
+  <p><em>Real-world analogy:</em> Pentesting is finding the holes; Security Controls are the bricks, mortar, alarms, and guards put in place to ensure those holes are closed and monitored.</p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Control Categories 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">🛡️ Preventive Controls (Stop the attack)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🕵️ Detective Controls (Identify the attack)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🛠️ Corrective Controls (Fix the attack damage)</div>
+  </div>
+  
+  <h4>Key Enterprise Architectures</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Control Type</th>
+        <th>Implementation</th>
+        <th>Effect on Attacker</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Identity Control</td>
+        <td>MFA & RBAC (Role-Based Access Control)</td>
+        <td>Password cracking is useless without the 2FA token. Limits lateral movement.</td>
+      </tr>
+      <tr>
+        <td>Network Control</td>
+        <td>VLAN Segmentation & Firewalls</td>
+        <td>Prevents pivoting. Attacker on Guest WiFi cannot touch the Domain Controller.</td>
+      </tr>
+      <tr>
+        <td>Endpoint Control</td>
+        <td>MDM & EDR (Crowdstrike/Defender)</td>
+        <td>Blocks malicious payloads; isolates infected machines instantly.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Secure SDLC 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">📋 Concept Check: Shifting Left</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Defense</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Theory</span>
+      <span class="meta-badge">Time: 15 mins</span>
+    </div>
+<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout warning">
+      <div class="icon">⚠️</div>
+      <div class="content"><strong>VAPT is Reactive:</strong> If you are finding SQL Injection during a penetration test right before launch, you have failed the Secure SDLC process. Security must start at the code design phase.</div>
+    </div>
+    
+    <h4>Shift-Left Pipeline Concept</h4>
+    <img src="../../assets/architecture_placeholder.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Key Phases</h4>
+    <ol>
+      <li><strong>Design:</strong> Threat Modeling (STRIDE) before any code is written.</li>
+      <li><strong>Develop:</strong> IDE Linters detecting XSS/SQLi in real-time.</li>
+      <li><strong>Build:</strong> SAST (Static Application Security Testing) like SonarQube analyzing source code.</li>
+      <li><strong>Test:</strong> DAST (Dynamic Application Security Testing) running automated attacks against staging.</li>
+      <li><strong>Deploy:</strong> WAF (Web Application Firewall) protecting the live application.</li>
+    </ol>
+    
+    <h4>Expected Outcome</h4>
+    <p>By implementing these controls, organizations drastically reduce the number of exploitable flaws that make it to production, making the eventual manual Pentest much harder (and less expensive) to conduct.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/social-engineering/overview.html" class="content-nav-prev"><span>←</span> Social Engineering</a></div>
+        <div><a href="../../modules/physical-security/overview.html" class="content-nav-next"><span>→</span> Physical Security</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

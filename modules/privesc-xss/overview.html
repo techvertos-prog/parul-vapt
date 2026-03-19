@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Privesc Xss</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html" class="active">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Privilege Escalation via XSS
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>PrivEsc via XSS</strong> is an advanced chaining technique. Instead of just popping an alert box, we use XSS to force an admin user's browser to perform actions on our behalf, or we steal their session cookie. Because the victims browser executes our payload while they are authenticated, their requests to the app are trusted.</p>
+  <p><em>Imagine an attacker giving a coffee shop manager a script they unconsciously read, forcing them to hand over the store keys to the attacker.</em></p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Attack Flow Visual 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker Planted Stored XSS</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">👑 Admin Logs In & Views Payload</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">💉 JS silently makes API call to `/api/makeAdmin`</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">🏁 Attacker's account becomes Admin</div>
+  </div>
+  
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Payload Goal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Find Stored XSS</td>
+        <td>In a profile or comment section viewed by Admin</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Craft CSRF Payload via XSS</td>
+        <td><code>fetch('/admin/changeRole', {method:'POST', body:'role=admin&amp;user=attacker'})</code></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Pwn system</td>
+        <td>Attacker logs in, sees Admin Dashboard</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Stored XSS to Admin Takeover</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: PrivEsc via Web</span>
+      <span class="meta-badge difficulty-hard">Difficulty: Hard</span>
+      <span class="meta-badge">Time: 45 mins</span>
+    </div>
+
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('privesc-xss')" class="btn-start-lab">▶ Start Privesc Xss Lab</button>
+      <button onclick="stopLab('privesc-xss')" class="btn-stop-lab">🛑 Stop Privesc Xss Lab</button>
+      <a href="http://localhost:3001" target="_blank" class="btn-start-lab" style="background: #8b5cf6;">🌐 Open Web App</a>
+    </div>
+    
+    <div id="console-privesc-xss" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout warning">
+      <div class="icon">⚠️</div>
+      <div class="content"><strong>Warning:</strong> You will need to write custom JavaScript to perform a CSRF via XSS. No basic alerts here!</div>
+    </div>
+    
+    <h4>Architecture Diagram</h4>
+    <img src="../../assets/csrf_flow.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Setup</h4>
+    <pre><code># Re-use XSS backend
+cd ../../labs/docker/
+docker-compose -f xss-advanced-docker.yml up -d
+# App running at http://localhost:4000</code></pre>
+    
+    <h4>Attack Steps</h4>
+    <ol>
+      <li>Log in to the vulnerable app as a standard user.</li>
+      <li>Find the "Update Profile Biography" section, which is vulnerable to Stored XSS.</li>
+      <li>Write a payload that fetches the `/admin/promote` endpoint.</li>
+      <li>Wait for the automated admin bot to view your profile in the Lab simulator.</li>
+      <li>Log out, log back in, and verify you are an Administrator.</li>
+    </ol>
+    
+    <h4>Payload Example</h4>
+    <pre><code class="language-javascript">&lt;script&gt;
+  fetch('/api/promote-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: "attacker_account", role: "admin" })
+  });
+&lt;/script&gt;</code></pre>
+    
+    <h4>Expected Output</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Fix / Mitigation</h4>
+    <p>In addition to strict Contextual Output Encoding (to prevent XSS), critical actions must require re-authentication or strong CSRF tokens that cannot be easily scraped by JS.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/xss/overview.html" class="content-nav-prev"><span>←</span> Xss</a></div>
+        <div><a href="../../modules/metasploit/overview.html" class="content-nav-next"><span>→</span> Metasploit</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            // Start polling logs
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                // Ensure HTML is escaped to prevent breaking the DOM
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Replace newlines with <br>
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                
+                // Keep the system header
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

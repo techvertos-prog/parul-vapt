@@ -1,0 +1,135 @@
+
+services:
+  # ---------------------------------------------------------
+  # Module: XSS (Cross-Site Scripting)
+  # Port: 3000
+  # ---------------------------------------------------------
+  xss-app:
+    build: ../vulnerable-apps/xss-app
+    container_name: vapt-xss-lab
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: Privilege Escalation
+  # Port: 2222 (SSH)
+  # Features: Vulnerable SSH container with SUID/Sudo issues
+  # ---------------------------------------------------------
+  privesc-app:
+    build: ../vulnerable-apps/privesc-app
+    container_name: vapt-privesc-lab
+    ports:
+      - "2222:22"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: SQL Injection
+  # Port: 8080 (Web) / 3306 (DB Local)
+  # Features: Setup a vulnerable LAMP/LEMP stack for SQLi
+  # ---------------------------------------------------------
+  sqli-db:
+    image: mariadb:10.6
+    container_name: vapt-sqli-db
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpass
+      - MARIADB_DATABASE=app_db
+      - MARIADB_USER=dbuser
+      - MARIADB_PASSWORD=dbpass
+    # Initialize DB with mock users
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./sqli-init.sql:/data/application/init.sql
+    networks:
+      - vapt_net
+
+  sqli-web:
+    image: php:7.4-apache
+    container_name: vapt-sqli-web
+    depends_on:
+      - sqli-db
+    ports:
+      - "8080:80"
+    volumes:
+      - ../vulnerable-apps/sqli-app:/var/www/html
+    # Install MySQL extension for PHP
+    command: bash -c "docker-php-ext-install mysqli && apache2-foreground"
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: Metasploit 
+  # Port: 8081, 2121
+  # Features: Vulnerable FTP (vsftpd 2.3.4 Smiley Face Backdoor) 
+  # ---------------------------------------------------------
+  metasploit-app:
+    build: ../vulnerable-apps/vsftpd-app
+    container_name: vapt-metasploit-lab
+    ports:
+      - "2121:21"
+      - "6200:6200"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: Exploitation
+  # Port: 8082, 2122
+  # ---------------------------------------------------------
+  exploitation-app:
+    build: ../vulnerable-apps/anon-ftp-app
+    container_name: vapt-exploitation-lab
+    ports:
+      - "2122:21"
+      - "21000-21010:21000-21010"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: AITM (Adversary in the Middle)
+  # Port: None directly exposed, interactive bash only
+  # ---------------------------------------------------------
+  aitm-app:
+    image: ubuntu:20.04
+    container_name: vapt-aitm-lab
+    command: /bin/bash -c "apt update && apt install -y dsniff net-tools iproute2 && tail -f /dev/null"
+    privileged: true 
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: Password Attacks
+  # Features: Alpine generating local hashes
+  # ---------------------------------------------------------
+  password-app:
+    image: alpine:latest
+    container_name: vapt-password-lab
+    command: /bin/sh -c "echo 'admin:$$1$$jkl$$pL/Zz9kKxZ.7x/.q2Kk' > /tmp/hashes.txt && tail -f /dev/null"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: PrivEsc via XSS (Admin CSRF)
+  # Port: 3001
+  # Features: Vulnerable internal forum where stored XSS 
+  #           forces the victim's browser to make Admin requests
+  # ---------------------------------------------------------
+  privesc-xss-app:
+    build: ../vulnerable-apps/privesc-xss-app
+    container_name: vapt-privesc-xss-lab
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+networks:
+  vapt_net:
+    driver: bridge

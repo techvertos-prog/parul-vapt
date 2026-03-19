@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  xss-lab-app:
+    build: 
+      context: ../vulnerable-apps/xss-app/
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      - NODE_ENV=development
+    networks:
+      - vapt_net
+
+networks:
+  vapt_net:
+    driver: bridge

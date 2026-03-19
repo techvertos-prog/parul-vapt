@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Password Attacks</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+    
+
+        <nav class="sidebar">
+            <span class="brand">VAPT Workshop</span>
+            <div class="nav-group">
+                <div class="nav-group-title">Table of Contents</div>
+                <ul class="nav-links">
+                    <li><a href="../../index.html">Welcome & Intro</a></li>
+                    <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                    <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                    <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                    <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                    <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                    <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                    <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                    <li><a href="../../modules/password-attacks/overview.html" class="active">Password Attacks</a></li>
+                    <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                    <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                    <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                    <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                    <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                    <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                </ul>
+            </div>
+        </nav>
+        <main class="main-content" id="content-anchor">
+            <h1>Module: Password Attacks & Cracking</h1>
+
+            <div class="glass-card">
+                <h2>1. Core Concept 🧠</h2>
+                <p><strong>Password Attacks</strong> involve techniques to discover a user's secret credential. They
+                    fall into two main categories:</p>
+                <ul>
+                    <li><strong>Online Attacks (Brute Force / Credential Stuffing):</strong> The attacker writes a
+                        script that interacts with the live authentication service (e.g., SSH, Web Login). The script
+                        tries thousands of passwords per second.</li>
+                    <li><strong>Offline Attacks (Hash Cracking):</strong> The attacker steals the database containing
+                        password hashes. Since hashes are mathematically irreversible, the attacker uses an offline tool
+                        to generate hashes of dictionary words until they find a matching hash.</li>
+                </ul>
+
+                <p><em>Real-world analogy:</em> Online attacks are like standing at a locked door trying thousands of
+                    physical keys (slow, easily caught by security cameras). Offline attacks are like stealing the
+                    blueprint of the lock, taking it home to a supercomputer in a bunker, and calculating the exact key
+                    shape in peace.</p>
+            </div>
+
+            <div class="glass-card">
+                <h2>2. The Attack Flow (Offline Hash Cracking) 🎯</h2>
+                <div class="attack-flow">
+                    <div class="flow-step">👨💻 Attacker Obtains Hashes (e.g. via SQLi)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step hacker-step">🔍 Identifies Hash Type Output: <code>$1$ = MD5</code></div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step target-step">⚙️ Supplies Wordlist to Hashcat or John the Ripper</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step goal-step">🏁 Software recovers plaintext password offline</div>
+                </div>
+
+                <div class="callout tip">
+                    <div class="icon">💡</div>
+                    <div class="content"><strong>What is Rockyou.txt?</strong> In 2009, a company named RockYou was
+                        hacked, exposing 32 million unencrypted passwords. Security researchers saved this list and it
+                        became the gold standard "dictionary" for hash cracking. If you use a password that has ever
+                        been caught in a breach, it is in `rockyou.txt` and an attacker can crack it instantly.</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h2>3. Hands-on Lab: Offline Hash Cracking 🧪</h2>
+
+                <div class="lab-header">
+                    <h3 class="lab-title">🧪 Lab: John the Ripper (JTR)</h3>
+                    <div class="lab-meta">
+                        <span class="meta-badge">Topic: Credential Harvesting</span>
+                        <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
+                        <span class="meta-badge">Time: 25 mins</span>
+                    </div>
+
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="startLab('password')" class="btn-start-lab">▶ Start Password Lab</button>
+                        <button onclick="stopLab('password')" class="btn-stop-lab">🛑 Stop Password Lab</button>
+                    </div>
+
+                    <div id="console-password" class="terminal-output"
+                        style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+                        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+                    </div>
+
+                </div>
+
+                <div class="lab-content">
+
+                    <h4>Context & Setup</h4>
+                    <p>By clicking "Start Lab" above, a lightweight Alpine linux container briefly spins up to generate
+                        a mocked `/etc/shadow` hash file dynamically. Follow the steps below using your local
+                        Kali/Parrot instance or a cloud VM with `john` installed.</p>
+
+                    <h4>Attack Steps (Offline)</h4>
+
+                    <pre><code class="language-bash"># 1. Inspect the stolen hash file format:
+$ cat /tmp/hashes.txt
+admin:$1$EliRH15m$M2TaFZ/PhgWrUvRdtPgK8/
+
+#You can generate password hashes using command 
+$ openssl passwd -1 YOUR_PASSWORD
+
+# The prefix $1$ tells us this is an MD5Crypt hash.
+
+# 2. Start John the Ripper using the default wordlist
+$ john --wordlist=/usr/share/wordlists/rockyou.txt /tmp/hashes.txt
+
+# 3. John runs incredibly fast on CPU (Hashcat scales better on GPU)
+# Press Spacebar while it runs to see status updates.
+
+# 4. Once cracked, John stops. View the cracked passwords:
+$ john --show /tmp/hashes.txt
+</code></pre>
+
+                    <h4>Expected Terminal Output</h4>
+                    <div
+                        style="background: #1e1e1e; color: #d4d4d4; padding: 15px; font-family: monospace; border-radius: 5px; margin-bottom: 20px;">
+                        Loaded 1 password hash (md5crypt, crypt(3) $1$ [MD5 256/256 AVX2 8x3])<br>
+                        Will run 4 OpenMP threads<br>
+                        Press 'q' or Ctrl-C to abort, almost any other key for status<br>
+                        <span style="color: #4ec9b0;">password123 (admin)</span><br>
+                        1g 0:00:00:02 DONE (2026-03-17 14:22) 0.4566g/s 45228p/s 45228c/s 45228C/s password123..<br>
+                        Use the "--show" option to display all of the cracked passwords reliably<br><br>
+                        $ <strong>john --show /tmp/hashes.txt</strong><br>
+                        admin:<span style="color: #4ec9b0;">password123</span><br>
+                        1 password hash cracked, 0 left
+                    </div>
+
+                    <h4>Fix / Mitigation</h4>
+                    <p><strong>For Online:</strong> Implement Account Lockout Policies and Rate Limiting (e.g.,
+                        Fail2Ban). Disable SSH Password Auth, use Keys only.<br>
+                        <strong>For Offline:</strong> Use strong, slow-hashing algorithms (Argon2id, bcrypt, PBKDF2)
+                        with high work factors and cryptographic salts. A fast algorithm like MD5 allows an attacker to
+                        guess billions of passwords a second; bcrypt slows them down to thousands.
+                    </p>
+                </div>
+            </div>
+
+            <div class="content-nav">
+                <div><a href="../../modules/aitm/overview.html" class="content-nav-prev"><span>←</span> AITM Attacks</a>
+                </div>
+                <div><a href="../../modules/network-pentesting/overview.html" class="content-nav-next"><span>→</span>
+                        Network Pentesting</a></div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let logIntervals = {};
+
+        async function startLab(labName) {
+            const consoleDiv = document.getElementById('console-' + labName);
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+
+            try {
+                let res = await fetch('/api/start?lab=' + labName);
+                let data = await res.json();
+                if (data.status === 'error' || !res.ok) {
+                    consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                    return;
+                }
+                consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+
+                if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+                logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+            } catch (e) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+            }
+        }
+
+        async function stopLab(labName) {
+            const consoleDiv = document.getElementById('console-' + labName);
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+
+            if (logIntervals[labName]) {
+                clearInterval(logIntervals[labName]);
+                delete logIntervals[labName];
+            }
+
+            try {
+                let res = await fetch('/api/stop?lab=' + labName);
+                let data = await res.json();
+                consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+            } catch (e) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+            }
+        }
+
+        async function pollLogs(labName) {
+            try {
+                let res = await fetch('/api/logs?lab=' + labName);
+                let data = await res.json();
+                const consoleDiv = document.getElementById('console-' + labName);
+
+                if (data.status === 'success') {
+                    let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    safeLogs = safeLogs.replace(/\n/g, "<br>");
+                    const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                    consoleDiv.innerHTML = sysHeader + safeLogs;
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                }
+            } catch (e) {
+                console.error("Log poll failed", e);
+            }
+        }
+    </script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

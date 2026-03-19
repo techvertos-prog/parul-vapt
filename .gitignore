@@ -1,0 +1,22 @@
+# Ignore all Python files
+*.py
+
+# But keep this specific file
+!workshop_server.py
+
+# Ignore log file
+workshop.log
+
+# Optional: common Python junk (recommended)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# macOS noise
+.DS_Store
+
+# Virtual environments
+venv/
+.env/

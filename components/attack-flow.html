@@ -1,0 +1,47 @@
+<!-- Attack Flow Component: Visual representation of attack steps -->
+<div class="glass-card">
+  <h3>Attack Flow: {{attack_name}}</h3>
+  <div class="attack-flow">
+    <!-- Example Step 1 -->
+    <div class="flow-step">👨💻 Attacker</div>
+    <div class="flow-arrow">↓</div>
+    
+    <!-- Example Step 2 -->
+    <div class="flow-step">🌐 Target Application</div>
+    <div class="flow-arrow">↓</div>
+    
+    <!-- Example Step 3 -->
+    <div class="flow-step">💉 Inject Payload</div>
+    <div class="flow-arrow">↓</div>
+    
+    <!-- Final State -->
+    <div class="flow-step">👑 Post-Exploitation Goal</div>
+  </div>
+  
+  <!-- Corresponding Step Mapping Table -->
+  <h4>Execution Mapping</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Payload</th>
+        <th>Expected Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Reconnaissance</td>
+        <td>nmap / burpsuite</td>
+        <td>Vulnerable endpoint identified</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Exploitation</td>
+        <td>{{tool_name}}</td>
+        <td>Shell access / Data dump</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

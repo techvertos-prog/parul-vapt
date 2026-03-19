@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Privilege Escalation</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html" class="active">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        <h1>Module: Privilege Escalation Deep Dive</h1>
+
+<div class="glass-card">
+  <h2>1. Core Architectural Concept 🧠</h2>
+  <p><strong>Privilege Escalation (PrivEsc)</strong> is the critical bridge between gaining an initial foothold and taking total control of a server. Simply obtaining a web-shell as the <code>www-data</code> user is rarely the end goal; attackers almost always want to become <code>root</code> (Linux) or <code>SYSTEM / Administrator</code> (Windows) to pivot further into a network or exfiltrate core database credentials.</p>
+
+  <p>At an OS level, processes inherit the permissions of the user who executes them. However, Linux implements Special Permissions like <strong>SUID (Set owner User ID up on execution)</strong>. When a binary has the SUID bit set, it runs with the privileges of the file's <i>owner</i> rather than the <i>executor</i>. If the owner is root, the binary runs as root. If that binary has features that allow executing external commands (like `find`, `vim`, `bash`), attackers can escape the binary's context to spawn a root shell.</p>
+
+  <div class="callout tip">
+    <div class="icon">💡</div>
+    <div class="content"><strong>Pro Tip</strong> The holy grail for finding Linux PrivEsc vectors is <strong>GTFOBins</strong> (A curated list of Unix binaries that can be used to bypass local security restrictions).</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>2. Multi-Vector Attack Flows 🎯</h2>
+  <p>Privilege escalation can be horizontal (gaining access to another standard user) or vertical (gaining administrative access). Here are three different real-world attack vectors to escalate vertically on Linux.</p>
+
+  <h3>Vector A: SUID Binary Abuse (The Lab Focus)</h3>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Low-Priv Shell</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🔍 Hunt for SUIDs (`find / -perm -u=s`)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Exploit `find` or `vim` binary</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step goal-step">👑 root shell via spawned subprocess</div>
+  </div>
+
+  <h3>Vector B: Misconfigured Cron Jobs</h3>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Low-Priv Shell</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🔍 Read /etc/crontab or run `pspy`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Find script running as root that is writable</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step goal-step">👑 Overwrite script with reverse shell</div>
+  </div>
+
+  <h3>Vector C: Sudo Rights Misconfiguration</h3>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Low-Priv Shell</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🔍 Check rights with `sudo -l`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Find `sudo (ALL) NOPASSWD: /usr/bin/python`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step goal-step">👑 `sudo python -c 'import os; os.system("/bin/bash")'`</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Linux SUID Abuse & Sudo Misconfigs</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Linux PrivEsc</span>
+      <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
+      <span class="meta-badge">Time: 45 mins</span>
+    </div>
+    
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('privesc')" class="btn-start-lab">▶ Start Privesc Lab</button>
+      <button onclick="stopLab('privesc')" class="btn-stop-lab">🛑 Stop Privesc Lab</button>
+      
+    </div>
+    
+    <div id="console-privesc" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    <div class="callout tip">
+      <div class="icon">📋</div>
+      <div class="content"><strong>Prerequisites:</strong> Basic Linux command line knowledge. A local terminal.</div>
+    </div>
+    
+    <h4>Phase 1: Establishing the Foothold</h4>
+    <p>Before escalating privileges, you must connect to the compromised box. In this lab, we simulate that you have just cracked an SSH password.</p>
+    <pre><code># Connect to the target machine using the compromised credentials
+ssh pwnme@localhost -p 2222
+# password: pwnme_password</code></pre>
+    
+    <div class="callout deep">
+      <div class="icon">🔍</div>
+      <div class="content"><strong>Deep Dive Analysis:</strong> Always establish your baseline. Once connected, run <code>id</code> and <code>whoami</code>. Notice you are standard user 1000. Next, check the kernel version using <code>uname -a</code>. If it is old, you might be able to use a kernel exploit like DirtyCOW.</div>
+    </div>
+    
+    <h4>Phase 2: The SUID Attack Vector</h4>
+    <ol>
+      <li><strong>Enumerate:</strong> Search the entire file system for binaries with the SUID bit set, ignoring permission denied errors:<br> <code>find / -perm -4000 -type f 2&gt;/dev/null</code></li>
+      <li><strong>Identify:</strong> In the massive output list, you are looking for non-standard binaries. Look closely at <code>/usr/bin/find</code>. It should not normally have the SUID bit set.</li>
+      <li><strong>Research:</strong> Go to GTFOBins online, search for `find`, and look at the "SUID" section.</li>
+      <li><strong>Exploit:</strong> The `find` binary has an `-exec` flag which allows executing arbitrary shell commands on files it finds. Because the binary has SUID set, the `-exec` flag spawns a process as the owner of `find` (root).<br> <code>find . -exec /bin/sh -p \; -quit</code></li>
+      <li><strong>Verify:</strong> Run <code>id</code>. You are now <code>uid=0(root) euid=0(root)</code>!</li>
+    </ol>
+    
+    <h4>Phase 3: The SUDO Attack Vector</h4>
+    <p>If the SUID binary route fails, the next best check is what commands you are allowed to run as another user using `sudo`.</p>
+    <ol>
+      <li><strong>Enumerate:</strong> Run <code>sudo -l</code>.</li>
+      <li><strong>Identify:</strong> Notice the output says: <code>(ALL : ALL) NOPASSWD: /usr/bin/vim</code>. This means you can run the vim text editor as root without needing the root password.</li>
+      <li><strong>Exploit:</strong> Vim has a built-in feature to spawn shells. Run vim with sudo: <br><code>sudo vim</code></li>
+      <li><strong>Drop to Shell:</strong> Once inside vim, hit <code>ESC</code> to ensure you are in command mode, then type: <br><code>:!/bin/bash</code> and hit Enter.</li>
+      <li><strong>Verify:</strong> Run <code>whoami</code>. You are root again!</li>
+    </ol>
+
+    <h4>Expected Visual Evidence</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Remediation & Hardening Strategies</h4>
+    <p>Privilege escalation paths are considered misconfigurations. Remediation requires strict access controls.</p>
+    <ul>
+      <li><strong>SUID Hardening:</strong> Use `chmod -s` to remove the SUID bit from binaries that don't absolutely require it. Only `passwd`, `sudo`, `su`, and a few others should have it.</li>
+      <li><strong>Sudoers Auditing:</strong> Never grant `NOPASSWD` sudo rights to binaries that can spawn subshells or execute OS commands (e.g., `tar`, `awk`, `vim`, `find`, `less`, `more`, `python`).</li>
+      <li><strong>Principle of Least Privilege:</strong> Implement strict MAC (Mandatory Access Controls) using AppArmor or SELinux to sandbox the web applications so even if they are compromised, they cannot read `/etc/crontab` or `sudoers`.</li>
+    </ul>
+  </div>
+</div>
+
+    <div class="content-nav">
+        <div><a href="../../index.html" class="content-nav-prev"><span>←</span> Welcome</a></div>
+        <div><a href="../../modules/xss/overview.html" class="content-nav-next"><span>→</span> Cross Site Scripting (Xss)</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            // Start polling logs
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                // Ensure HTML is escaped to prevent breaking the DOM
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Replace newlines with <br>
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                
+                // Keep the system header
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

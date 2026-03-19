@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - SQL Injection (SQLi)</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    
+
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html" class="active">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        <h1>Module: SQL Injection (SQLi) Deep Dive</h1>
+
+<div class="glass-card">
+  <h2>1. Core Architectural Concept 🧠</h2>
+  <p><strong>SQL Injection (SQLi)</strong> is one of the oldest and most devastating vulnerabilities on the web. It occurs when an application improperly sanitizes user input before concatenating it directly into a backend database query. This allows an attacker to manipulate the structure of the query itself, enabling them to read, modify, or delete data they shouldn't have access to.</p>
+  
+  <p>The core problem isn't the database—it's the <strong>String Concatenation</strong> in the application layer (PHP, Java, Node.js). If the database thinks your input string is an instruction rather than data, the application is fundamentally compromised.</p>
+
+  <div class="callout tip">
+    <div class="icon">💡</div>
+    <div class="content"><strong>Pro Tip:</strong> Almost all SQL Injection stems from a developer "building queries manually using plus signs or dot operators" instead of using secure Parametrized Queries.</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>2. The Three Families of SQLi 🎯</h2>
+  <p>The way you exploit SQLi heavily depends on how much information the application returns to you. We categorize them into three families.</p>
+
+  <h3>Family 1: Error-Based / In-Band (The Easy Way)</h3>
+  <p>The application takes your payload, the DB crashes, and the application prints the raw database error on the screen. Or, you use UNION statements to make the application display the database contents directly on the webpage.</p>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker inputs `?id=1'`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🗄️ Database Query: `SELECT * FROM users WHERE id=1'` (Syntax Error)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Webpage displays: "You have an error in your SQL syntax near '''"</div>
+  </div>
+
+  <h3>Family 2: Boolean-Based Blind (The Guessing Game)</h3>
+  <p>The application does NOT display database errors and does NOT display query results. However, if a query evaluates to TRUE, the page looks normal. If a query evaluates to FALSE, the page looks slightly different (e.g., a missing 'Welcome' message). You steal data by asking a million True/False questions.</p>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker inputs `?id=1 AND (SELECT SUBSTRING(version(),1,1))='5'`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step target-step">🗄️ Database checks if the first number of its version is 5.</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Webpage returns 'Welcome' (True). The attacker now knows the DB version starts with 5.</div>
+  </div>
+
+  <h3>Family 3: Time-Based Blind (The Waiting Game)</h3>
+  <p>The hardest type. The application behavior does not change at all whether the query is true or false. You steal data by telling the database to <strong>pause for 5 seconds</strong> if a character matches your guess. If the server takes 5 seconds to respond, your guess was correct.</p>
+  <div class="attack-flow">
+    <div class="flow-step">👨💻 Attacker inputs `?id=1; IF (SYSTEM_USER='sa') WAITFOR DELAY '0:0:5'--`</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step hacker-step">💉 Page takes exactly 5 seconds to load. Attacker knows the user is 'sa' (System Admin).</div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h2>3. Hands-on Lab 🧪</h2>
+  
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: Authentication Bypass & SQLMap Exploitation</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: Web App DB</span>
+      <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
+      <span class="meta-badge">Time: 45 mins</span>
+    </div>
+    
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('sqli')" class="btn-start-lab">▶ Start Sqli Lab</button>
+      <button onclick="stopLab('sqli')" class="btn-stop-lab">🛑 Stop Sqli Lab</button>
+      <a href="http://localhost:8080/login.php" target="_blank" class="btn-start-lab" style="background: #8b5cf6;">🌐 Open Web App</a>
+    </div>
+    
+    <div id="console-sqli" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting container initialization...</span>
+    </div>
+
+  </div>
+  
+  <div class="lab-content">
+    
+    <h4>Phase 1: The Authentication Bypass (Manual Execution)</h4>
+    <p>Many legacy login forms take a username and password and do a simple string match in the database.</p>
+    <pre><code class="language-php">// Vulnerable Code
+$query = "SELECT * FROM users WHERE username='" . $_POST['user'] . "' AND password='" . $_POST['pass'] . "'";</code></pre>
+
+    <ol>
+      <li>Go to <code>http://localhost:8080/login.php</code> in the lab environment.</li>
+      <li>In the Username field, enter the classic payload: <code>admin' OR '1'='1' #</code></li>
+      <li>Enter anything in the password field, and click Login.</li>
+      <li><strong>Why it works:</strong> The query becomes: <code>SELECT * FROM users WHERE username='admin' OR '1'='1' #' AND password='xyz'</code>. The <code>#</code> comments out the password requirement entirely, and <code>1=1</code> is always true, so the database logs you in as the first user it finds (usually the Admin).</li>
+    </ol>
+
+    <h4>Phase 2: Database Extraction (Automated via SQLMap)</h4>
+    <p>Manual extraction via UNION or Blind techniques is tedious. In a real VAPT scenario, we rely on automation tools like SQLMap to dump massive tables once we identify an injection point.</p>
+    
+    <ol>
+      <li>Find a vulnerable URL parameter that fetches data. For example: <code>http://localhost:8080/item.php?id=1</code></li>
+      <li>Open your terminal and run SQLMap to enumerate the available databases:
+        <br><code>sqlmap -u "http://localhost:8080/item.php?id=1" --dbs --batch</code>
+      </li>
+      <li>SQLMap will discover the backend is MySQL, test all 3 families of injection, and return a list of databases (e.g., `app_db`).</li>
+      <li>Dump the entire users table, bypassing the application logic completely:
+        <br><code>sqlmap -u "http://localhost:8080/item.php?id=1" -D app_db -T users --dump --batch</code>
+      </li>
+    </ol>
+    
+    <h4>Expected Output Evidence</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Remediation & Hardening Strategies</h4>
+    <div class="callout warning">
+      <div class="icon">⚠️</div>
+      <div class="content"><strong>WAFs are not the answer!</strong> Blocking quotes (`'`) or keywords (`SELECT`) using a Web Application Firewall will eventually be bypassed. The only true fix happens in the source code.</div>
+    </div>
+    
+    <p>Always use <strong>Prepared Statements (Parameterized Queries)</strong> or ORMs (Object-Relational Mapping). This completely forces the database engines to treat the variables as raw string data, not executable SQL syntax.</p>
+    <pre><code class="language-php">/* SECURE CODE (PHP PDO Example) */
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username AND password = :password");
+$stmt->execute(['username' => $_POST['user'], 'password' => $_POST['pass']]);
+$user = $stmt->fetch();</code></pre>
+  </div>
+</div>
+
+    <div class="content-nav">
+        <div><a href="../../modules/exploitation/overview.html" class="content-nav-prev"><span>←</span> Exploitation</a></div>
+        <div><a href="../../modules/aitm/overview.html" class="content-nav-next"><span>→</span> Aitm</a></div>
+    </div>
+    
+</main>
+</div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            // Start polling logs
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        consoleDiv.style.display = 'block';
+        consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            
+            if (data.status === 'success') {
+                // Ensure HTML is escaped to prevent breaking the DOM
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Replace newlines with <br>
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                
+                // Keep the system header
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
+
+<script>
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+
+</html>

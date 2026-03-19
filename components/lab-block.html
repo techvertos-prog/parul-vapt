@@ -1,0 +1,38 @@
+<!-- Lab Block Component: Use this to wrap lab exercises -->
+<div class="glass-card lab-block">
+  <div class="lab-header">
+    <h3 class="lab-title">🧪 Lab: {{lab_name}}</h3>
+    <div class="lab-meta">
+      <span class="meta-badge">Topic: {{topic}}</span>
+      <span class="meta-badge difficulty-{{difficulty_lower}}">Difficulty: {{difficulty}}</span>
+      <span class="meta-badge">Time: {{time}}</span>
+    </div>
+  </div>
+  
+  <div class="lab-content">
+    <div class="callout tip">
+      <div class="icon">📋</div>
+      <div class="content"><strong>Prerequisites:</strong> {{prerequisites}}</div>
+    </div>
+    
+    <h4>Architecture</h4>
+    <img src="../../assets/architecture_placeholder.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Setup</h4>
+    <pre><code>{{setup_code}}</code></pre>
+    
+    <h4>Vulnerable Code</h4>
+    <pre><code>{{vulnerable_code}}</code></pre>
+    
+    <h4>Attack Steps</h4>
+    <ol>
+      {{attack_steps_html}}
+    </ol>
+    
+    <h4>Expected Output</h4>
+    <img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    
+    <h4>Fix / Mitigation</h4>
+    <pre><code>{{fix_code}}</code></pre>
+  </div>
+</div>
