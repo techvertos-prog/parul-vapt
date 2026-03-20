@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------
+  # Module: PrivEsc via XSS (Admin CSRF)
+  # Port: 3001
+  # Features: Vulnerable internal forum where stored XSS 
+  #           forces the victim's browser to make Admin requests
+  # ---------------------------------------------------------
+  privesc-xss-app:
+    build: 
+      context: ../vulnerable-apps/privesc-xss-app/
+      dockerfile: Dockerfile
+    container_name: vapt-privesc-xss-lab
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+networks:
+  vapt_net:
+    driver: bridge
