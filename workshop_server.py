@@ -47,6 +47,8 @@ class WorkshopAPIHandler(http.server.SimpleHTTPRequestHandler):
         service_names = [f"{lab}-app"] # Maps lab module name to docker-compose service name
         if lab == 'sqli':
             service_names = ['sqli-web', 'sqli-db']
+        elif lab == 'aitm':
+            service_names = ['aitm-server', 'aitm-victim', 'aitm-attacker']
         
         endpoint = parsed_path.path
         

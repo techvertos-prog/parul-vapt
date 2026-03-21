@@ -92,16 +92,49 @@ services:
 
   # ---------------------------------------------------------
   # Module: AITM (Adversary in the Middle)
-  # Port: None directly exposed, interactive bash only
+  # Port: 8080
+  # Features: Server, Victim, and Attacker
   # ---------------------------------------------------------
-  aitm-app:
-    image: ubuntu:20.04
-    container_name: vapt-aitm-lab
-    command: /bin/bash -c "apt update && apt install -y dsniff net-tools iproute2 && tail -f /dev/null"
-    privileged: true 
-    restart: unless-stopped
+  aitm-server:
+    image: nginxdemos/hello:plain-text
+    container_name: aitm_server
+    ports:
+      - "8080:80"
     networks:
-      - vapt_net
+      aitm_net:
+        ipv4_address: 10.10.10.80
+
+  aitm-victim:
+    image: alpine:latest
+    container_name: aitm_victim
+    command: >
+      /bin/sh -c "
+      apk update && apk add curl &&
+      while true; do
+        echo '[Victim] Accessing mock server...';
+        curl -s -X POST -d 'username=admin&password=SuperSecretPassword123' http://10.10.10.80:80/login;
+        sleep 10;
+      done"
+    networks:
+      aitm_net:
+        ipv4_address: 10.10.10.2
+
+  aitm-attacker:
+    image: kalilinux/kali-rolling
+    container_name: aitm_attacker
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: >
+      /bin/sh -c "
+      echo 'Installing necessary networking tools...';
+      apt-get update && apt-get install -y bettercap iproute2 net-tools procps tcpdump dsniff arp-scan &&
+      echo 'Tools installed. Attacker container ready.' &&
+      tail -f /dev/null"
+    networks:
+      aitm_net:
+        ipv4_address: 10.10.10.10
 
   # ---------------------------------------------------------
   # Module: Password Attacks
@@ -133,3 +166,9 @@ services:
 networks:
   vapt_net:
     driver: bridge
+
+  aitm_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24

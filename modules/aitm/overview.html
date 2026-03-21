@@ -139,12 +139,12 @@
     <p>This lab utilizes a custom Docker bridge network (<code>10.10.10.0/24</code>) to simulate a complete local area network equipped with continuous background traffic to practice interception operations.</p>
     <ul class="info-list" style="margin-bottom: 1.5rem; line-height: 1.6;">
       <li><strong>Victim Client (<code>10.10.10.2</code>):</strong> An automated Alpine Linux container mimicking a real user. Every 10 seconds, it sends an HTTP POST request containing fictitious credentials to the Target Server.</li>
-      <li><strong>Router/Target (<code>10.10.10.1</code>):</strong> The Docker network gateway. It provides routing for the subnet and also hosts the mock HTTP login endpoint on port 8080.</li>
+      <li><strong>Target Server (<code>10.10.10.80</code>):</strong> Hosts the vulnerable HTTP application endpoint on port 80.</li>
       <li><strong>Attacker / You (<code>10.10.10.10</code>):</strong> A Kali Linux container granted elevated network privileges (`NET_ADMIN`), equipped with pentesting tools like <code>bettercap</code>, <code>dsniff</code>, and <code>tcpdump</code>.</li>
     </ul>
 
     <h4>How It Works</h4>
-    <p>By executing an ARP Spoofing attack from the Attacker container, you will "poison" the Victim's ARP cache. This tricks the Victim into believing your MAC address belongs to the Gateway (<code>10.10.10.1</code>). When the Victim tries to log into the mock site, the traffic routes through your container first, allowing Bettercap to sniff the plaintext credentials.</p>
+    <p>By executing an ARP Spoofing attack from the Attacker container, you will "poison" the Victim's ARP cache. This tricks the Victim into believing your MAC address belongs to the Target Server (<code>10.10.10.80</code>). When the Victim tries to log into the mock site, the traffic routes through your container first, allowing Bettercap to sniff the plaintext credentials.</p>
     
     <h4>Exploitation Steps</h4>
     <p>First, access the attacker container terminal by executing: <code>docker exec -it aitm_attacker bash</code>, then follow these commands:</p>
@@ -152,7 +152,7 @@
       <li><strong>Enable IP Forwarding:</strong> Allow packets to route through your container instead of dropping them, preventing a Denial-of-Service condition on the victim:<br><code>sysctl -w net.ipv4.ip_forward=1</code></li>
       <li><strong>Start Bettercap:</strong> Launch Bettercap on your primary interface:<br><code>bettercap -iface eth0</code></li>
       <li><strong>Network Discovery:</strong> Inside Bettercap, map the subnet to actively discover targets:<br><code>net.probe on</code></li>
-      <li><strong>Configure ARP Spoofing:</strong> Set the spoofing target to the Victim's IP address (10.10.10.2). Without specifying a second target, Bettercap automatically spoofs against the gateway (10.10.10.1):<br><code>set arp.spoof.targets 10.10.10.2</code></li>
+      <li><strong>Configure ARP Spoofing:</strong> Set the spoofing targets to intercept traffic between the Victim (10.10.10.2) and the Target Server (10.10.10.80):<br><code>set arp.spoof.targets 10.10.10.2,10.10.10.80</code></li>
       <li><strong>Launch the Attack:</strong> Begin continuously sending forged ARP replies:<br><code>arp.spoof on</code></li>
       <li><strong>Enable Credential Sniffing:</strong> Start the packet sniffer to automatically extract HTTP POST payloads and basic auth credentials:<br><code>net.sniff on</code></li>
       <li><strong>Wait &amp; Intercept:</strong> Wait up to 10 seconds for the automated victim to browse to the HTTP site. You will see an event log capturing the POST request, exposing the plaintext credentials (<code>username=admin&password=SuperSecretPassword123</code>) directly in the Bettercap console!</li>
