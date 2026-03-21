@@ -1,0 +1,50 @@
+version: '3.8'
+
+networks:
+  aitm_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
+
+services:
+  server:
+    image: nginxdemos/hello:plain-text
+    container_name: aitm_server
+    ports:
+      - "8080:80"
+    networks:
+      aitm_net:
+        ipv4_address: 10.10.10.80
+
+  victim:
+    image: alpine:latest
+    container_name: aitm_victim
+    command: >
+      /bin/sh -c "
+      apk update && apk add curl &&
+      while true; do
+        echo '[Victim] Accessing mock server...';
+        curl -s -X POST -d 'username=admin&password=SuperSecretPassword123' http://10.10.10.1:8080/login;
+        sleep 10;
+      done"
+    networks:
+      aitm_net:
+        ipv4_address: 10.10.10.2
+
+  attacker:
+    image: kalilinux/kali-rolling
+    container_name: aitm_attacker
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: >
+      /bin/sh -c "
+      echo 'Installing necessary networking tools...';
+      apt-get update && apt-get install -y bettercap iproute2 net-tools procps tcpdump dsniff arp-scan &&
+      echo 'Tools installed. Attacker container ready.' &&
+      tail -f /dev/null"
+    networks:
+      aitm_net:
+        ipv4_address: 10.10.10.10

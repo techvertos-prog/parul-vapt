@@ -1,8 +1,8 @@
 # Ignore all Python files
-*.py
+inject_images.py
+inject_dynamic_ui.py
+add_theme_toggle.py
 
-# But keep this specific file
-!workshop_server.py
 
 # Ignore log file
 workshop.log

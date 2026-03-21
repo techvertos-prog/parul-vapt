@@ -1,9 +1,10 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
-const port = 3001; // Runs on 3001 to not conflict with the other XSS lab
+const port = 3001;
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // ✅ Needed for fetch JSON
 app.use(cookieParser());
 
 // Mock Database
@@ -16,7 +17,7 @@ let users = [
     { username: 'john', password: 'password123', role: 'user' }
 ];
 
-// Helper to get current user from simple insecure cookie
+// Helper to get current user
 function getUser(req) {
     if (req.cookies.session) {
         return users.find(u => u.username === req.cookies.session);
@@ -60,9 +61,9 @@ app.get('/', (req, res) => {
             <div class="admin-panel">
                 <h3>👑 Admin Danger Zone</h3>
                 <form action="/admin/add_user" method="POST">
-                    New Username: <input type="text" name="new_username"><br><br>
-                    New Password: <input type="password" name="new_password"><br><br>
-                    <button type="submit" style="background: red; color: white;">Force Create Admin User</button>
+                    Username: <input type="text" name="new_username"><br><br>
+                    Password: <input type="password" name="new_password"><br><br>
+                    <button type="submit" style="background: red; color: white;">Create / Promote Admin</button>
                 </form>
             </div>
             `;
@@ -87,7 +88,7 @@ app.get('/', (req, res) => {
     res.send(html);
 });
 
-// VULNERABLE LOGIN
+// LOGIN (still intentionally weak)
 app.post('/login', (req, res) => {
     const user = users.find(u => u.username === req.body.username && u.password === req.body.password);
     if (user) {
@@ -103,7 +104,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// VULNERABLE STORED XSS (No sanitization)
+// STORED XSS (intentional)
 app.post('/post', (req, res) => {
     const user = getUser(req);
     if (!user) return res.send("Must be logged in.");
@@ -111,28 +112,59 @@ app.post('/post', (req, res) => {
     posts.push({
         id: posts.length + 1,
         author: user.username,
-        content: req.body.content // Vulnerability: Untrusted input directly saved
+        content: req.body.content
     });
     res.redirect('/');
 });
 
-// FORGED ADMIN ENDPOINT (CSRF Vulnerable)
+// ADMIN PANEL (now promotes instead of duplicating)
 app.post('/admin/add_user', (req, res) => {
     const user = getUser(req);
-    // VULNERABILITY: No Anti-CSRF token check, just relies on the session cookie
+
     if (!user || user.role !== 'admin') {
         return res.status(403).send("Forbidden. You are not an admin.");
     }
-    
+
+    const existingUser = users.find(u => u.username === req.body.new_username);
+
+    if (existingUser) {
+        existingUser.role = 'admin';
+        existingUser.password = req.body.new_password;
+        return res.send(`User ${existingUser.username} promoted to admin. <a href="/">Go back</a>`);
+    }
+
     users.push({
         username: req.body.new_username,
         password: req.body.new_password,
-        role: 'admin' // Forces new user to be an admin
+        role: 'admin'
     });
-    
-    res.send(`Successfully created new Admin account: ${req.body.new_username}. <a href="/">Go back</a>`);
+
+    res.send(`Created new admin: ${req.body.new_username}. <a href="/">Go back</a>`);
+});
+
+// 🔥 NEW: API endpoint for XSS → CSRF → PrivEsc chain
+app.post('/api/promote-user', (req, res) => {
+    const currentUser = getUser(req);
+
+    if (!currentUser || currentUser.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const { username, role } = req.body;
+
+    const targetUser = users.find(u => u.username === username);
+
+    if (!targetUser) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    targetUser.role = role;
+
+    res.json({
+        message: `User ${username} is now ${role}`
+    });
 });
 
 app.listen(port, () => {
-  console.log(`PrivEsc XSS Lab app listening at http://localhost:${port}`)
+  console.log(`🔥 PrivEsc XSS Lab running at http://localhost:${port}`);
 });
