@@ -81,50 +81,33 @@
 </div>
 
 <script>
-    // 20 Questions strictly mapped to exactly 5 index 0 keys, 5 index 1, 5 index 2, 5 index 3 to meet structural demands.
-    const rawQuestions = [
-        // 5 Correct A's (Index 0)
+    // 20 Questions strictly interleaved to statically map exactly 5 index 0 keys, 5 index 1, 5 index 2, 5 index 3
+    const finalQuestions = [
         { q: "In the context of a Penetration Test, what does the term 'Lateral Movement' refer to?", options: ["Pivoting from a compromised asset to another internal system.", "Extracting data out of the network.", "Scanning external facing firewalls.", "Phishing employees for initial access."], correct: 0 },
-        { q: "Which Docker container natively provides the `msfconsole` framework for advanced payload generation and exploitation?", options: ["kalilinux/kali-rolling", "dperson/samba", "php:7.4-apache", "frapsoft/proftpd"], correct: 0 },
-        { q: "Which SQL Injection technique relies on observing the database's response times using sleep() functions to infer true/false responses?", options: ["Time-Based Blind SQLi", "Error-Based SQLi", "Union-Based SQLi", "Out-of-Band SQLi"], correct: 0 },
-        { q: "What is the primary purpose of a 'Reverse Shell'?", options: ["It forces the victim machine to actively connect back to the attacker's listening port.", "It allows the attacker to connect directly to the victim via Telnet.", "It encrypts network traffic to emulate HTTPS.", "It crashes the target application via buffer overflow."], correct: 0 },
-        { q: "In a wireless pentest, what tool is used to mathematically crack a captured WPA2 highly secure 4-way handshake using a dictionary file?", options: ["Hashcat", "Nmap", "Wireshark", "Bettercap"], correct: 0 },
-        
-        // 5 Correct B's (Index 1)
         { q: "What is the fundamental difference between Vulnerability Scanning and Penetration Testing?", options: ["Pentesting only checks for missing patches.", "Pentesting involves actively exploiting vulnerabilities to prove business impact.", "Scanning is more expensive and requires specialized code.", "Scanning specifically bypasses firewalls."], correct: 1 },
-        { q: "Which Nmap flag performs a stealthy half-open TCP scan without completing the 3-way handshake?", options: ["-sn", "-sS", "-p-", "-A"], correct: 1 },
-        { q: "Which command injection payload successfully executes the 'id' command after short-circuiting a ping request?", options: ["127.0.0.1 && dir", "127.0.0.1; id", "127.0.0.1 | select id", "127.0.0.1 -exec id"], correct: 1 },
-        { q: "What type of Cross-Site Scripting (XSS) occurs when the malicious payload is permanently saved to the target server's database (e.g., in a forum post)?", options: ["Reflected XSS", "Stored XSS", "DOM-based XSS", "Blind XSS"], correct: 1 },
-        { q: "The widely used tool 'LinPEAS' is primarily executed during which phase of a pentest?", options: ["Initial Access", "Privilege Escalation", "OSINT / Reconnaissance", "Reporting"], correct: 1 },
-        
-        // 5 Correct C's (Index 2)
         { q: "Which vulnerability allows an attacker to include unvalidated data into a web request to load local server files such as `/etc/passwd`?", options: ["SQLi", "XSS", "Local File Inclusion (LFI)", "Server-Side Request Forgery"], correct: 2 },
-        { q: "Why is WPA3 significantly harder to crack than WPA2?", options: ["It uses AES-256 for all packets.", "It forces users to have 16 character passwords.", "It utilizes Simultaneous Authentication of Equals (SAE) preventing offline dictionary attacks.", "It hides the SSID permanently from monitors."], correct: 2 },
-        { q: "Which of the following best describes an 'Adversary-In-The-Middle' (AITM) phishing attack using Evilginx2?", options: ["Cloning an employee access card using Proxmark3.", "Guessing passwords via Brute Force.", "Proxying authentication traffic to capture session cookies and bypass MFA.", "Flooding the target with SYN packets."], correct: 2 },
-        { q: "What reporting framework is globally recognized as the standard for structuring a professional Penetration Test?", options: ["OWASP Top 10", "MITRE ATT&CK", "PTES (Penetration Testing Execution Standard)", "NIST 800-53"], correct: 2 },
-        { q: "Which physical security attack vector utilizes a USB drive disguised as a keyboard to rapidly inject malicious keystrokes?", options: ["RFID Cloning", "Tailgating", "Rubber Ducky (BadUSB)", "Acoustic Eavesdropping"], correct: 2 },
-        
-        // 5 Correct D's (Index 3)
         { q: "What is the default TCP port utilized by the Server Message Block (SMB) protocol for legacy file sharing?", options: ["21", "80", "3389", "445"], correct: 3 },
+        
+        { q: "Which Docker container natively provides the `msfconsole` framework for advanced payload generation and exploitation?", options: ["kalilinux/kali-rolling", "dperson/samba", "php:7.4-apache", "frapsoft/proftpd"], correct: 0 },
+        { q: "Which Nmap flag performs a stealthy half-open TCP scan without completing the 3-way handshake?", options: ["-sn", "-sS", "-p-", "-A"], correct: 1 },
+        { q: "Why is WPA3 significantly harder to crack than WPA2?", options: ["It uses AES-256 for all packets.", "It forces users to have 16 character passwords.", "It utilizes Simultaneous Authentication of Equals (SAE) preventing offline dictionary attacks.", "It hides the SSID permanently from monitors."], correct: 2 },
         { q: "During a credential brute-forcing attack against an FTP server, which legendary open-source tool is most commonly utilized?", options: ["DirBuster", "SQLMap", "Responder", "Hydra"], correct: 3 },
+        
+        { q: "Which SQL Injection technique relies on observing the database's response times using sleep() functions to infer true/false responses?", options: ["Time-Based Blind SQLi", "Error-Based SQLi", "Union-Based SQLi", "Out-of-Band SQLi"], correct: 0 },
+        { q: "Which command injection payload successfully executes the 'id' command after short-circuiting a ping request?", options: ["127.0.0.1 && dir", "127.0.0.1; id", "127.0.0.1 | select id", "127.0.0.1 -exec id"], correct: 1 },
+        { q: "Which of the following best describes an 'Adversary-In-The-Middle' (AITM) phishing attack using Evilginx2?", options: ["Cloning an employee access card using Proxmark3.", "Guessing passwords via Brute Force.", "Proxying authentication traffic to capture session cookies and bypass MFA.", "Flooding the target with SYN packets."], correct: 2 },
         { q: "Which defensive implementation actively analyzes HTTP requests and blocks malicious payloads like `<script>` or `UNION SELECT` from reaching the application?", options: ["VPN", "EDR", "Antivirus", "Web Application Firewall (WAF)"], correct: 3 },
+        
+        { q: "What is the primary purpose of a 'Reverse Shell'?", options: ["It forces the victim machine to actively connect back to the attacker's listening port.", "It allows the attacker to connect directly to the victim via Telnet.", "It encrypts network traffic to emulate HTTPS.", "It crashes the target application via buffer overflow."], correct: 0 },
+        { q: "What type of Cross-Site Scripting (XSS) occurs when the malicious payload is permanently saved to the target server's database (e.g., in a forum post)?", options: ["Reflected XSS", "Stored XSS", "DOM-based XSS", "Blind XSS"], correct: 1 },
+        { q: "What reporting framework is globally recognized as the standard for structuring a professional Penetration Test?", options: ["OWASP Top 10", "MITRE ATT&CK", "PTES (Penetration Testing Execution Standard)", "NIST 800-53"], correct: 2 },
         { q: "What is the most significant danger of reusing the same password across multiple platforms?", options: ["Passwords naturally decay over time.", "It causes database corruption.", "Attackers cannot decrypt it.", "A breach on one platform allows Credential Stuffing attacks on others."], correct: 3 },
+        
+        { q: "In a wireless pentest, what tool is used to mathematically crack a captured WPA2 highly secure 4-way handshake using a dictionary file?", options: ["Hashcat", "Nmap", "Wireshark", "Bettercap"], correct: 0 },
+        { q: "The widely used tool 'LinPEAS' is primarily executed during which phase of a pentest?", options: ["Initial Access", "Privilege Escalation", "OSINT / Reconnaissance", "Reporting"], correct: 1 },
+        { q: "Which physical security attack vector utilizes a USB drive disguised as a keyboard to rapidly inject malicious keystrokes?", options: ["RFID Cloning", "Tailgating", "Rubber Ducky (BadUSB)", "Acoustic Eavesdropping"], correct: 2 },
         { q: "In the final stage of the Capstone lab, how was full domain compromise achieved after pivoting from the Database?", options: ["Executing an Nmap scan.", "Creating a fake login page.", "Sending a phishing email to the Sysadmin.", "Extracting plaintext SSH credentials and connecting to the internal server."], correct: 3 }
     ];
-
-    // Function to precisely shuffle the array of questions but maintain their internal correct index mapping
-    function shuffleArray(array) {
-        let currentIndex = array.length, randomIndex;
-        while (currentIndex !== 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-        return array;
-    }
-
-    // Shuffle only the questions array order to present a randomized test
-    const finalQuestions = shuffleArray([...rawQuestions]);
 
     function renderQuiz() {
         const container = document.getElementById('quiz-container');

@@ -18,12 +18,21 @@ services:
     container_name: vapt_report_web
     ports:
       - "8003:80"
-    command: >
-      bash -c "apt-get update && apt-get install -y iputils-ping default-mysql-client netcat-traditional && 
-      echo '<?php define(\"DB_HOST\", \"172.25.0.30\"); define(\"DB_USER\", \"root\"); define(\"DB_PASS\", \"M4ng0_D4t4b4s3_!@#\"); ?>' > /var/www/html/config.php && 
-      echo '<html><body><h2>Network Diagnostic Tool</h2><p>Enter an IP to ping:</p><form><input type=\"text\" name=\"ip\" placeholder=\"127.0.0.1\"><button type=\"submit\">Ping</button></form><pre><?php if(isset(\\$$_GET[\"ip\"])){ echo shell_exec(\"ping -c 1 \" . \\$$_GET[\"ip\"]); } ?></pre></body></html>' > /var/www/html/index.php &&
-      rm /var/www/html/index.html && 
-      apache2-foreground"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        apt-get update && apt-get install -y iputils-ping default-mysql-client netcat-traditional
+        cat << 'EOF' > /var/www/html/config.php
+        <?php define("DB_HOST", "172.25.0.30"); define("DB_USER", "root"); define("DB_PASS", "M4ng0_D4t4b4s3_!@#"); ?>
+        EOF
+        cat << 'EOF' > /var/www/html/index.php
+        <html><body><h2>Network Diagnostic Tool</h2><p>Enter an IP to ping:</p>
+        <form><input type="text" name="ip" placeholder="127.0.0.1"><button type="submit">Ping</button></form>
+        <pre><?php if(isset($$_GET["ip"])){ echo shell_exec("ping -c 1 " . $$_GET["ip"]); } ?></pre></body></html>
+        EOF
+        rm -f /var/www/html/index.html
+        apache2-foreground
     networks:
       report_net:
         ipv4_address: 172.25.0.20
