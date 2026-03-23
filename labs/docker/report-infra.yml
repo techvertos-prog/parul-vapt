@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  attacker:
+    image: kalilinux/kali-rolling
+    container_name: vapt_report_attacker
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: /bin/sh -c "apt-get update && apt-get install -y nmap netcat-traditional default-mysql-client openssh-client iproute2 iputils-ping curl nano && tail -f /dev/null"
+    networks:
+      report_net:
+        ipv4_address: 172.25.0.10
+
+  web:
+    image: php:7.4-apache
+    container_name: vapt_report_web
+    ports:
+      - "8003:80"
+    command: >
+      bash -c "apt-get update && apt-get install -y iputils-ping default-mysql-client netcat-traditional && 
+      echo '<?php define(\"DB_HOST\", \"172.25.0.30\"); define(\"DB_USER\", \"root\"); define(\"DB_PASS\", \"M4ng0_D4t4b4s3_!@#\"); ?>' > /var/www/html/config.php && 
+      echo '<html><body><h2>Network Diagnostic Tool</h2><p>Enter an IP to ping:</p><form><input type=\"text\" name=\"ip\" placeholder=\"127.0.0.1\"><button type=\"submit\">Ping</button></form><pre><?php if(isset(\\$$_GET[\"ip\"])){ echo shell_exec(\"ping -c 1 \" . \\$$_GET[\"ip\"]); } ?></pre></body></html>' > /var/www/html/index.php &&
+      rm /var/www/html/index.html && 
+      apache2-foreground"
+    networks:
+      report_net:
+        ipv4_address: 172.25.0.20
+
+  db:
+    image: mariadb:10.5
+    container_name: vapt_report_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=M4ng0_D4t4b4s3_!@#
+      - MYSQL_DATABASE=company_vault
+    command: >
+      bash -c 'echo "CREATE TABLE admin_creds (service VARCHAR(50), username VARCHAR(50), plaintext_password VARCHAR(100)); INSERT INTO admin_creds VALUES (\"Internal DC Server\", \"root\", \"VAPT_{S3cr3t_1nt3rn4l_P4ss}\");" > /docker-entrypoint-initdb.d/init.sql && docker-entrypoint.sh mysqld'
+    networks:
+      report_net:
+        ipv4_address: 172.25.0.30
+
+  internal:
+    image: ubuntu:20.04
+    container_name: vapt_report_internal
+    command: >
+      bash -c "apt-get update && apt-get install -y openssh-server && mkdir -p /var/run/sshd &&
+      echo 'root:VAPT_{S3cr3t_1nt3rn4l_P4ss}' | chpasswd &&
+      echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config &&
+      echo 'VAPT{LATERAL_MOVEMENT_MASTER}' > /root/flag.txt &&
+      /usr/sbin/sshd -D"
+    networks:
+      report_net:
+        ipv4_address: 172.25.0.40
+
+networks:
+  report_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24

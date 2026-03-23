@@ -36,11 +36,17 @@
                 <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
                 <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
                 <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html">Final MCQ Test</a></li>
             </ul>
         </div>
     </nav>
     <main class="main-content" id="content-anchor">
         # Module: Adversary-in-the-Middle (AITM)
+
+<div class="glass-card">
+  <h2>📚 Theory & Class Notes</h2>
+  <p><strong>Adversary-in-the-Middle (AITM)</strong> (formerly MITM) attacks occur when an attacker secretly relays and possibly alters the communications between two parties who believe they are directly communicating with each other.<br><br><strong>Vulnerabilities:</strong> Lack of HTTP Strict Transport Security (HSTS), untrusted/self-signed SSL certs, ARP table spoofing lacking port security.<br><strong>Tools:</strong> Bettercap, Ettercap, Wireshark, Responder (for LLMNR/NBT-NS poisoning).</p>
+</div>
 
 <div class="glass-card">
   <h2>1. Core Concept 🧠</h2>
@@ -153,6 +159,7 @@
       <li><strong>Start Bettercap:</strong> Launch Bettercap on your primary interface:<br><code>bettercap -iface eth0</code></li>
       <li><strong>Network Discovery:</strong> Inside Bettercap, map the subnet to actively discover targets:<br><code>net.probe on</code></li>
       <li><strong>Configure ARP Spoofing:</strong> Set the spoofing targets to intercept traffic between the Victim (10.10.10.2) and the Target Server (10.10.10.80):<br><code>set arp.spoof.targets 10.10.10.2,10.10.10.80</code></li>
+      <li><strong>Enable Internal Spoofing:</strong> Tell Bettercap to spoof the targets against each other rather than the gateway:<br><code>set arp.spoof.internal true</code></li>
       <li><strong>Launch the Attack:</strong> Begin continuously sending forged ARP replies:<br><code>arp.spoof on</code></li>
       <li><strong>Enable Credential Sniffing:</strong> Start the packet sniffer to automatically extract HTTP POST payloads and basic auth credentials:<br><code>net.sniff on</code></li>
       <li><strong>Wait &amp; Intercept:</strong> Wait up to 10 seconds for the automated victim to browse to the HTTP site. You will see an event log capturing the POST request, exposing the plaintext credentials (<code>username=admin&password=SuperSecretPassword123</code>) directly in the Bettercap console!</li>

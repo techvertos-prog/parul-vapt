@@ -36,11 +36,17 @@
                 <li><a href="../../modules/security-controls/overview.html" class="active">Security Controls</a></li>
                 <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
                 <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html">Final MCQ Test</a></li>
             </ul>
         </div>
     </nav>
     <main class="main-content" id="content-anchor">
         # Module: Security Controls & Architecture
+
+<div class="glass-card">
+  <h2>📚 Theory & Class Notes</h2>
+  <p><strong>Security Controls</strong> are the defensive countermeasures employed to detect, deter, or mitigate cyber risks. A robust architecture uses "Defense-in-Depth"—layering multiple security controls so if one fails, others remain.<br><br><strong>Key Deployments:</strong> Web Application Firewalls (WAF) to block SQLi/XSS, Intrusion Detection Systems (IDS), Endpoint Detection & Response (EDR), and Security Information & Event Management (SIEM).<br><strong>Tools:</strong> ModSecurity (WAF), Snort, Splunk, CrowdStrike.</p>
+</div>
 
 <div class="glass-card">
   <h2>1. Core Concept 🧠</h2>
@@ -93,36 +99,52 @@
   <h2>3. Secure SDLC 🧪</h2>
   
   <div class="lab-header">
-    <h3 class="lab-title">📋 Concept Check: Shifting Left</h3>
+    <h3 class="lab-title">🧪 Lab: Web Application Firewall (WAF) Bypass</h3>
     <div class="lab-meta">
-      <span class="meta-badge">Topic: Defense</span>
-      <span class="meta-badge difficulty-easy">Difficulty: Theory</span>
-      <span class="meta-badge">Time: 15 mins</span>
+      <span class="meta-badge">Topic: Defense Operations</span>
+      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
+      <span class="meta-badge">Time: 25 mins</span>
     </div>
-<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('security-controls')" class="btn-start-lab">▶ Start Controls Lab</button>
+      <button onclick="stopLab('security-controls')" class="btn-stop-lab">🛑 Stop Controls Lab</button>
+      <a href="http://localhost:8002" target="_blank" class="btn-start-lab" style="margin-left:auto; background: #6366f1;">🌐 Access WAF Protected App</a>
+    </div>
+    
+    <div id="console-security-controls" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting initialization...</span>
+    </div>
   </div>
   
   <div class="lab-content">
     
     <div class="callout warning">
       <div class="icon">⚠️</div>
-      <div class="content"><strong>VAPT is Reactive:</strong> If you are finding SQL Injection during a penetration test right before launch, you have failed the Secure SDLC process. Security must start at the code design phase.</div>
+      <div class="content"><strong>VAPT is Reactive:</strong> Security Controls are what stand between attackers and your data when software flaws inevitably slip through the cracks. In this lab, we test against a globally recognized Web Application Firewall: ModSecurity.</div>
     </div>
     
-    <h4>Shift-Left Pipeline Concept</h4>
-    <img src="../../assets/architecture_placeholder.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    <h4>Setup</h4>
+    <pre style="background: #0f172a; color: #e2e8f0; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto;"><code># We have deployed an Apache webserver strictly protected by ModSecurity Core Rule Set (CRS).
+# Make sure the lab container is running:
+cd ../../labs/docker/
+docker compose up -d security-controls-app</code></pre>
     
-    <h4>Key Phases</h4>
-    <ol>
-      <li><strong>Design:</strong> Threat Modeling (STRIDE) before any code is written.</li>
-      <li><strong>Develop:</strong> IDE Linters detecting XSS/SQLi in real-time.</li>
-      <li><strong>Build:</strong> SAST (Static Application Security Testing) like SonarQube analyzing source code.</li>
-      <li><strong>Test:</strong> DAST (Dynamic Application Security Testing) running automated attacks against staging.</li>
-      <li><strong>Deploy:</strong> WAF (Web Application Firewall) protecting the live application.</li>
+    <h4>Attack Steps</h4>
+    <ol class="steps-list">
+      <li><strong>Normal Request:</strong> Visit the application normally in your browser at <code>http://localhost:8002/</code>. Notice that it loads perfectly fine (it reverse-proxies example.com safely).</li>
+      <li><strong>Malicious Request (SQL Inection):</strong> Now, try appending a classic SQL Injection payload to the URL bar:<br>
+          <code>http://localhost:8002/?id=1' OR 1=1--</code>
+      </li>
+      <li><strong>Observe the Control:</strong> Press Enter. The WAF will instantly intercept the maliciously-crafted HTTP GET request. Instead of crashing a database, you receive a stark <code>403 Forbidden</code> response generated locally by the firewall engine.</li>
+      <li><strong>WAF Evasion (Optional Challenge):</strong> Real-world attackers spend days trying to obfuscate payloads (using encoding, HTML entities, or weird whitespace) to bypass regular expression filters without losing functionality. Try experimenting!</li>
     </ol>
     
-    <h4>Expected Outcome</h4>
-    <p>By implementing these controls, organizations drastically reduce the number of exploitable flaws that make it to production, making the eventual manual Pentest much harder (and less expensive) to conduct.</p>
+    <h4>Expected Output</h4>
+    <p>The ModSecurity engine catches the signature of the SQLi attack and terminates the connection before the backend Web Server even knows it happened.</p>
+    <pre style="background: #0f172a; color: #ef4444; padding: 15px; border-radius: 6px; border: 1px solid #334155;"><code>Forbidden
+You don't have permission to access this resource.
+
+Apache Server at localhost Port 8002</code></pre>
   </div>
 </div>
 
@@ -134,6 +156,73 @@
     
 </main>
 </div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if(consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        }
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if (consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        }
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            if (!consoleDiv) return;
+            
+            if (data.status === 'success') {
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
 
 <script>
     // Theme toggling logic

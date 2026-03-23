@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Workshop - Final MCQ Mock Exam</title>
+    <link rel="stylesheet" href="../../styles/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        .quiz-container { background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--box-shadow); margin-bottom: 20px; }
+        .question-block { margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid var(--border-color); }
+        .question-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: var(--text-color); }
+        .options-list { list-style-type: none; padding: 0; }
+        .option-item { background: var(--bg-hover); margin-bottom: 10px; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; }
+        .option-item:hover { background: var(--accent-light); border-color: var(--accent-color); }
+        .option-item input { margin-right: 15px; cursor: pointer; }
+        .btn-submit-exam { background: #10b981; color: #fff; border: none; padding: 12px 24px; font-size: 1.1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s ease; width: 100%; margin-top: 20px; }
+        .btn-submit-exam:hover { background: #059669; }
+        
+        .correct-answer { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .wrong-answer { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+        .dark-theme .correct-answer { background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; color: #34d399 !important; }
+        .dark-theme .wrong-answer { background: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+        
+        #score-display { display: none; text-align: center; padding: 20px; border-radius: 8px; margin-top: 20px; font-size: 1.3rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    
+    <nav class="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+            <span class="brand" style="margin-bottom: 0;">VAPT Workshop</span>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="position: static; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                <span id="themeIcon" style="font-size: 1.2rem;">☀️</span>
+            </button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Table of Contents</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Welcome & Intro</a></li>
+                <li><a href="../../modules/privilege-escalation/overview.html">Privilege Escalation</a></li>
+                <li><a href="../../modules/xss/overview.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="../../modules/privesc-xss/overview.html">PrivEsc via XSS</a></li>
+                <li><a href="../../modules/metasploit/overview.html">Metasploit</a></li>
+                <li><a href="../../modules/exploitation/overview.html">Exploitation Frameworks</a></li>
+                <li><a href="../../modules/sqli/overview.html">SQL Injection</a></li>
+                <li><a href="../../modules/aitm/overview.html">AITM Attacks</a></li>
+                <li><a href="../../modules/password-attacks/overview.html">Password Attacks</a></li>
+                <li><a href="../../modules/network-pentesting/overview.html">Network Pentesting</a></li>
+                <li><a href="../../modules/wireless-pentesting/overview.html">Wireless Pentesting</a></li>
+                <li><a href="../../modules/social-engineering/overview.html">Social Engineering</a></li>
+                <li><a href="../../modules/security-controls/overview.html">Security Controls</a></li>
+                <li><a href="../../modules/physical-security/overview.html">Physical Security</a></li>
+                <li><a href="../../modules/reporting/overview.html">Reporting</a></li>
+                <li><a href="../../modules/mcq-test/overview.html" class="active">Final MCQ Test</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="main-content" id="content-anchor">
+        # Module: Capstone MCQ Mock Exam
+
+<div class="glass-card">
+  <h2>🎓 Final Workshop Assessment</h2>
+  <p>Congratulations on completing the hands-on VAPT Workshop! This final 20-question mock exam evaluates your theoretical and practical comprehension of everything covered: Web Vulnerabilities, Network Infrastructure, Privilege Escalation, Wireless Attacks, Security Controls, and Lateral Movement.</p>
+  <p><em>Instructions:</em> Select the single best answer for each question below and click Submit to reveal your definitive score. The exam questions have been mathematically shuffled for fairness.</p>
+</div>
+
+<div class="quiz-container" id="quiz-container">
+    <!-- Quiz questions will be dynamically injected here by Javascript -->
+</div>
+<button class="btn-submit-exam" id="submit-btn" onclick="gradeExam()">Submit Exam & Calculate Score</button>
+<div id="score-display"></div>
+    
+<div class="content-nav">
+    <div><a href="../../modules/reporting/overview.html" class="content-nav-prev"><span>←</span> Reporting</a></div>
+    <div></div>
+</div>
+    
+</main>
+</div>
+
+<script>
+    // 20 Questions strictly mapped to exactly 5 index 0 keys, 5 index 1, 5 index 2, 5 index 3 to meet structural demands.
+    const rawQuestions = [
+        // 5 Correct A's (Index 0)
+        { q: "In the context of a Penetration Test, what does the term 'Lateral Movement' refer to?", options: ["Pivoting from a compromised asset to another internal system.", "Extracting data out of the network.", "Scanning external facing firewalls.", "Phishing employees for initial access."], correct: 0 },
+        { q: "Which Docker container natively provides the `msfconsole` framework for advanced payload generation and exploitation?", options: ["kalilinux/kali-rolling", "dperson/samba", "php:7.4-apache", "frapsoft/proftpd"], correct: 0 },
+        { q: "Which SQL Injection technique relies on observing the database's response times using sleep() functions to infer true/false responses?", options: ["Time-Based Blind SQLi", "Error-Based SQLi", "Union-Based SQLi", "Out-of-Band SQLi"], correct: 0 },
+        { q: "What is the primary purpose of a 'Reverse Shell'?", options: ["It forces the victim machine to actively connect back to the attacker's listening port.", "It allows the attacker to connect directly to the victim via Telnet.", "It encrypts network traffic to emulate HTTPS.", "It crashes the target application via buffer overflow."], correct: 0 },
+        { q: "In a wireless pentest, what tool is used to mathematically crack a captured WPA2 highly secure 4-way handshake using a dictionary file?", options: ["Hashcat", "Nmap", "Wireshark", "Bettercap"], correct: 0 },
+        
+        // 5 Correct B's (Index 1)
+        { q: "What is the fundamental difference between Vulnerability Scanning and Penetration Testing?", options: ["Pentesting only checks for missing patches.", "Pentesting involves actively exploiting vulnerabilities to prove business impact.", "Scanning is more expensive and requires specialized code.", "Scanning specifically bypasses firewalls."], correct: 1 },
+        { q: "Which Nmap flag performs a stealthy half-open TCP scan without completing the 3-way handshake?", options: ["-sn", "-sS", "-p-", "-A"], correct: 1 },
+        { q: "Which command injection payload successfully executes the 'id' command after short-circuiting a ping request?", options: ["127.0.0.1 && dir", "127.0.0.1; id", "127.0.0.1 | select id", "127.0.0.1 -exec id"], correct: 1 },
+        { q: "What type of Cross-Site Scripting (XSS) occurs when the malicious payload is permanently saved to the target server's database (e.g., in a forum post)?", options: ["Reflected XSS", "Stored XSS", "DOM-based XSS", "Blind XSS"], correct: 1 },
+        { q: "The widely used tool 'LinPEAS' is primarily executed during which phase of a pentest?", options: ["Initial Access", "Privilege Escalation", "OSINT / Reconnaissance", "Reporting"], correct: 1 },
+        
+        // 5 Correct C's (Index 2)
+        { q: "Which vulnerability allows an attacker to include unvalidated data into a web request to load local server files such as `/etc/passwd`?", options: ["SQLi", "XSS", "Local File Inclusion (LFI)", "Server-Side Request Forgery"], correct: 2 },
+        { q: "Why is WPA3 significantly harder to crack than WPA2?", options: ["It uses AES-256 for all packets.", "It forces users to have 16 character passwords.", "It utilizes Simultaneous Authentication of Equals (SAE) preventing offline dictionary attacks.", "It hides the SSID permanently from monitors."], correct: 2 },
+        { q: "Which of the following best describes an 'Adversary-In-The-Middle' (AITM) phishing attack using Evilginx2?", options: ["Cloning an employee access card using Proxmark3.", "Guessing passwords via Brute Force.", "Proxying authentication traffic to capture session cookies and bypass MFA.", "Flooding the target with SYN packets."], correct: 2 },
+        { q: "What reporting framework is globally recognized as the standard for structuring a professional Penetration Test?", options: ["OWASP Top 10", "MITRE ATT&CK", "PTES (Penetration Testing Execution Standard)", "NIST 800-53"], correct: 2 },
+        { q: "Which physical security attack vector utilizes a USB drive disguised as a keyboard to rapidly inject malicious keystrokes?", options: ["RFID Cloning", "Tailgating", "Rubber Ducky (BadUSB)", "Acoustic Eavesdropping"], correct: 2 },
+        
+        // 5 Correct D's (Index 3)
+        { q: "What is the default TCP port utilized by the Server Message Block (SMB) protocol for legacy file sharing?", options: ["21", "80", "3389", "445"], correct: 3 },
+        { q: "During a credential brute-forcing attack against an FTP server, which legendary open-source tool is most commonly utilized?", options: ["DirBuster", "SQLMap", "Responder", "Hydra"], correct: 3 },
+        { q: "Which defensive implementation actively analyzes HTTP requests and blocks malicious payloads like `<script>` or `UNION SELECT` from reaching the application?", options: ["VPN", "EDR", "Antivirus", "Web Application Firewall (WAF)"], correct: 3 },
+        { q: "What is the most significant danger of reusing the same password across multiple platforms?", options: ["Passwords naturally decay over time.", "It causes database corruption.", "Attackers cannot decrypt it.", "A breach on one platform allows Credential Stuffing attacks on others."], correct: 3 },
+        { q: "In the final stage of the Capstone lab, how was full domain compromise achieved after pivoting from the Database?", options: ["Executing an Nmap scan.", "Creating a fake login page.", "Sending a phishing email to the Sysadmin.", "Extracting plaintext SSH credentials and connecting to the internal server."], correct: 3 }
+    ];
+
+    // Function to precisely shuffle the array of questions but maintain their internal correct index mapping
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    // Shuffle only the questions array order to present a randomized test
+    const finalQuestions = shuffleArray([...rawQuestions]);
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        let htmlContent = '';
+        
+        finalQuestions.forEach((item, index) => {
+            htmlContent += `
+                <div class="question-block" id="qblock-${index}">
+                    <div class="question-title">${index + 1}. ${item.q}</div>
+                    <ul class="options-list">
+            `;
+            item.options.forEach((optText, optIndex) => {
+                const optId = `q${index}_opt${optIndex}`;
+                htmlContent += `
+                    <label class="option-item" for="${optId}" id="label_${optId}">
+                        <input type="radio" name="question${index}" id="${optId}" value="${optIndex}">
+                        <span>${optText}</span>
+                    </label>
+                `;
+            });
+            htmlContent += `</ul></div>`;
+        });
+        
+        container.innerHTML = htmlContent;
+    }
+
+    function gradeExam() {
+        let score = 0;
+        let answered = 0;
+        
+        // First pass: Verify all questions are answered
+        finalQuestions.forEach((item, index) => {
+            if (document.querySelector(`input[name="question${index}"]:checked`)) {
+                answered++;
+            }
+        });
+
+        if (answered < finalQuestions.length) {
+            alert("Please answer all " + finalQuestions.length + " questions before submitting!");
+            return;
+        }
+
+        // Second pass: Grade the exam
+        finalQuestions.forEach((item, index) => {
+            const selectedOpt = document.querySelector(`input[name="question${index}"]:checked`);
+            const correctLabel = document.getElementById(`label_q${index}_opt${item.correct}`);
+            
+            if(correctLabel) correctLabel.classList.add('correct-answer');
+
+            let rawVal = parseInt(selectedOpt.value);
+            if (rawVal === item.correct) {
+                score++;
+            } else {
+                const wrongLabel = document.getElementById(`label_q${index}_opt${rawVal}`);
+                if(wrongLabel) wrongLabel.classList.add('wrong-answer');
+            }
+        });
+
+        const scoreDiv = document.getElementById('score-display');
+        scoreDiv.style.display = 'block';
+        
+        let percentage = (score / finalQuestions.length) * 100;
+        if (percentage >= 80) {
+            scoreDiv.style.background = '#d1fae5';
+            scoreDiv.style.color = '#065f46';
+            if (document.documentElement.classList.contains('light-theme') === false) {
+                 scoreDiv.style.background = 'rgba(16, 185, 129, 0.2)';
+                 scoreDiv.style.color = '#34d399';
+            }
+            scoreDiv.innerHTML = `🌟 Outstanding! You scored ${score} / ${finalQuestions.length} (${percentage}%). You have mastered the VAPT curriculum!`;
+        } else if (percentage >= 60) {
+             scoreDiv.style.background = '#fef3c7';
+             scoreDiv.style.color = '#92400e';
+             if (document.documentElement.classList.contains('light-theme') === false) {
+                 scoreDiv.style.background = 'rgba(245, 158, 11, 0.2)';
+                 scoreDiv.style.color = '#fbbf24';
+             }
+             scoreDiv.innerHTML = `👍 Good Job! You scored ${score} / ${finalQuestions.length} (${percentage}%). Review the class notes to perfect your scores!`;
+        } else {
+             scoreDiv.style.background = '#fee2e2';
+             scoreDiv.style.color = '#991b1b';
+             if (document.documentElement.classList.contains('light-theme') === false) {
+                 scoreDiv.style.background = 'rgba(239, 68, 68, 0.2)';
+                 scoreDiv.style.color = '#f87171';
+             }
+             scoreDiv.innerHTML = `⚠️ Keep Studying! You scored ${score} / ${finalQuestions.length} (${percentage}%). Please review the theory modules thoroughly!`;
+        }
+        
+        // Disable submit button after grading
+        document.getElementById('submit-btn').disabled = true;
+        document.getElementById('submit-btn').innerText = "Exam Submitted";
+        document.getElementById('submit-btn').style.opacity = "0.6";
+        document.getElementById('submit-btn').style.cursor = "not-allowed";
+        
+        // Disable all radio buttons
+        const allRadios = document.querySelectorAll('input[type="radio"]');
+        allRadios.forEach(r => r.disabled = true);
+    }
+    
+    // Auto-render on load
+    window.onload = renderQuiz;
+
+    // Theme toggling logic
+    function setTheme(isLight) {
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.getElementById('themeIcon').innerText = '🌙';
+            localStorage.setItem('vapt-theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.getElementById('themeIcon').innerText = '☀️';
+            localStorage.setItem('vapt-theme', 'dark');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = !document.documentElement.classList.contains('light-theme');
+        setTheme(isLight);
+    }
+
+    // Initialize theme based on localStorage
+    const savedTheme = localStorage.getItem('vapt-theme');
+    if (savedTheme === 'light') {
+        setTheme(true);
+    }
+</script>
+
+</body>
+</html>

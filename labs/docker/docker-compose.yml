@@ -163,6 +163,38 @@ services:
     networks:
       - vapt_net
 
+  # ---------------------------------------------------------
+  # Module: Social Engineering
+  # Port: 8001
+  # Features: Serves a dummy Corporate SSO page for SET cloning
+  # ---------------------------------------------------------
+  social-engineering-app:
+    image: nginx:alpine
+    container_name: vapt-social-engineering-lab
+    ports:
+      - "8001:80"
+    command: >
+      /bin/sh -c "echo '<html><head><title>Corporate SSO</title></head><body style=\"font-family: Arial; text-align: center; margin-top: 50px; background-color: #f4f4f9;\"><h2>Corporate Single Sign-On Portal</h2><div style=\"width: 300px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\"><form action=\"/login\" method=\"POST\"><input type=\"text\" placeholder=\"Employee ID\" style=\"width: 90%; padding: 10px; margin-bottom: 15px;\"><input type=\"password\" placeholder=\"Password\" style=\"width: 90%; padding: 10px; margin-bottom: 15px;\"><button type=\"submit\" style=\"width: 100%; padding: 10px; background-color: #0056b3; color: white; border: none;\">Secure Login</button></form></div></body></html>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
+  # ---------------------------------------------------------
+  # Module: Security Controls
+  # Port: 8002
+  # Features: ModSecurity WAF reverse-proxying example.com
+  # ---------------------------------------------------------
+  security-controls-app:
+    image: coreruleset/modsecurity-crs:apache
+    container_name: vapt-security-controls-lab
+    environment:
+      - BACKEND=http://example.com
+    ports:
+      - "8002:80"
+    restart: unless-stopped
+    networks:
+      - vapt_net
+
 networks:
   vapt_net:
     driver: bridge

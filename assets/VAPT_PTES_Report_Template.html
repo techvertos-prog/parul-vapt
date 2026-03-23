@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Penetration Test Report - PTES Template</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 40px; }
+        h1, h2, h3 { color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .cover-page { text-align: center; margin-top: 15vh; margin-bottom: 20vh; }
+        .red { color: #e74c3c; }
+        .yellow { color: #f39c12; }
+        .blue { color: #3498db; }
+        .placeholder { background-color: #fff3cd; color: #856404; padding: 2px 5px; border-radius: 3px; font-style: italic; border: 1px dashed #ffeeba; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 30px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .page-break { page-break-before: always; }
+        .instruction { font-size: 0.9em; color: #666; background: #f8f9fa; padding: 15px; border-left: 4px solid #3498db; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="cover-page">
+        <h1>Penetration Test Report</h1>
+        <h2>Target: <span class="placeholder">[Insert Target Name/Network]</span></h2>
+        <h2>Date: <span class="placeholder">[Insert Date]</span></h2>
+        <br><br>
+        <p><strong>Prepared By:</strong> <span class="placeholder">[Your Name / Student ID]</span></p>
+        <p><strong>Methodology:</strong> Penetration Testing Execution Standard (PTES)</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>1. Executive Summary</h2>
+    <div class="instruction">
+        <strong>What goes here?</strong> This section is written for the CEO/Board. Avoid deeply technical jargon. Summarize the overall risk, the most critical findings, and the bottom-line business impact if compromised. Keep it under one page.
+    </div>
+    <p><span class="placeholder">[Write 2-3 paragraphs explaining your high-level findings, the security posture of the application, and the ultimate risk to the business.]</span></p>
+
+    <h2>2. Assessment Methodology</h2>
+    <div class="instruction">
+        <strong>What goes here?</strong> Detail the rules of engagement and the PTES phases you followed (e.g., Intelligence Gathering, Threat Modeling, Vulnerability Analysis, Exploitation, Post-Exploitation). 
+    </div>
+    <p><span class="placeholder">[Briefly describe the tools utilized (e.g., Nmap, Burp Suite, Metasploit, Custom Scripts) and whether it was a Black-Box or White-Box test.]</span></p>
+
+    <div class="page-break"></div>
+
+    <h2>3. Vulnerability Matrix</h2>
+    <div class="instruction">
+        <strong>What goes here?</strong> A high-level table mapping out all vulnerabilities discovered, prioritized by their severity.
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Finding ID</th>
+                <th>Vulnerability Name</th>
+                <th>Target Element</th>
+                <th>Severity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>VAPT-001</td>
+                <td><span class="placeholder">[e.g., Unauthenticated SQL Injection]</span></td>
+                <td><span class="placeholder">[e.g., /login.php]</span></td>
+                <td class="red"><strong>Critical</strong></td>
+            </tr>
+            <tr>
+                <td>VAPT-002</td>
+                <td><span class="placeholder">[e.g., Command Injection]</span></td>
+                <td><span class="placeholder">[e.g., ping parameter]</span></td>
+                <td class="red"><strong>Critical</strong></td>
+            </tr>
+            <tr>
+                <td>VAPT-003</td>
+                <td><span class="placeholder">[e.g., Cleartext Credentials in Source Code]</span></td>
+                <td><span class="placeholder">[e.g., config.php]</span></td>
+                <td class="yellow"><strong>High</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <h2>4. Technical Findings Details</h2>
+    <div class="instruction">
+        <strong>What goes here?</strong> Write for Developers and SysAdmins. They need exact, reproducible steps so they can verify and patch the vulnerability. You MUST include screenshots (Proof of Concept) for every finding. Multiple findings should duplicate this block.
+    </div>
+
+    <h3>Finding: <span class="placeholder">[Insert Vulnerability Title]</span></h3>
+    <p><strong>Severity:</strong> <span class="placeholder">[Critical / High / Medium / Low]</span></p>
+    <p><strong>Description:</strong> <span class="placeholder">[Explain the technical nature of the flaw. Why does it happen?]</span></p>
+    
+    <h4>Proof of Concept (PoC):</h4>
+    <p>The following steps successfully reproduce the vulnerability:</p>
+    <ol>
+        <li><span class="placeholder">[Step 1: e.g., Navigate to http://172.25.0.20/index.php]</span></li>
+        <li><span class="placeholder">[Step 2: e.g., Inject the payload `127.0.0.1; cat /etc/passwd` into the input field.]</span></li>
+        <li><span class="placeholder">[Step 3: e.g., Observe the server responding with the contents of the passwd file.]</span></li>
+    </ol>
+    <div style="background: #f1f5f9; padding: 20px; text-align: center; border: 1px solid #cbd5e1; margin-bottom: 20px;">
+        <span class="placeholder">[Insert Exploit Screenshot Here]</span>
+    </div>
+
+    <h4>Business Impact:</h4>
+    <p><span class="placeholder">[Explain how an attacker could leverage this specifically (e.g., Steal PII, move laterally, shut down the server).]</span></p>
+
+    <h4>Remediation Recommendations:</h4>
+    <p><span class="placeholder">[Explain how to fix it (e.g., Use Parameterized Queries, Sanitize Input, use escapeshellarg).]</span></p>
+
+    <div class="page-break"></div>
+    
+    <h2>5. Attack Narrative (Lateral Movement)</h2>
+    <div class="instruction">
+        <strong>What goes here?</strong> In advanced tests, vulnerabilities are chained together. Use this section to explain the timeline or "kill chain". How did one vulnerability lead to another?
+    </div>
+    <p><span class="placeholder">[e.g., "Initial access was gained on the web-server via Command Injection. From there, the database credentials were recovered in config.php. We pivoted to the database, extracted the Admin SSH key, and utilized it to definitively compromise the internal domain controller."]</span></p>
+
+</body>
+</html>

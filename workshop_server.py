@@ -44,11 +44,25 @@ class WorkshopAPIHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json_response(400, {"status": "error", "message": "Invalid lab identifier."})
             return
 
+        if lab in ['wireless-pentesting', 'physical-security']:
+            if parsed_path.path == '/api/logs':
+                self.send_json_response(200, {"status": "success", "logs": "[System] No Docker containers required for this lab. Environment operates purely locally."})
+            else:
+                self.send_json_response(200, {"status": "success", "message": "Lab environment operates locally (no containers required)."})
+            return
+
         service_names = [f"{lab}-app"] # Maps lab module name to docker-compose service name
+        compose_file = []
         if lab == 'sqli':
             service_names = ['sqli-web', 'sqli-db']
         elif lab == 'aitm':
             service_names = ['aitm-server', 'aitm-victim', 'aitm-attacker']
+        elif lab == 'network-pentesting':
+            service_names = ['samba', 'ftp', 'web', 'attacker']
+            compose_file = ["-f", "network-pentest.yml"]
+        elif lab == 'reporting':
+            service_names = ['attacker', 'web', 'db', 'internal']
+            compose_file = ["-f", "report-infra.yml"]
         
         endpoint = parsed_path.path
         
@@ -56,17 +70,17 @@ class WorkshopAPIHandler(http.server.SimpleHTTPRequestHandler):
             if endpoint == '/api/start':
                 self.send_json_response(200, {"status": "processing", "message": f"Starting {lab}..."})
                 # Fire and forget start process
-                threading.Thread(target=self.run_docker_cmd, args=(["up", "-d", "--build"] + service_names,)).start()
+                threading.Thread(target=self.run_docker_cmd, args=(compose_file + ["up", "-d", "--force-recreate"] + service_names,)).start()
                 return
                 
             elif endpoint == '/api/stop':
                 self.send_json_response(200, {"status": "processing", "message": f"Stopping {lab}..."})
-                threading.Thread(target=self.run_docker_cmd, args=(["stop"] + service_names,)).start()
+                threading.Thread(target=self.run_docker_cmd, args=(compose_file + ["stop"] + service_names,)).start()
                 return
                 
             elif endpoint == '/api/logs':
                 # Fetch last 50 lines of logs
-                result = subprocess.run(DOCKER_CMD + ["logs", "--tail", "50"] + service_names, 
+                result = subprocess.run(DOCKER_CMD + compose_file + ["logs", "--tail", "50"] + service_names, 
                                      cwd=DOCKER_DIR, capture_output=True, text=True)
                 
                 log_output = result.stdout + result.stderr
